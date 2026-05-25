@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP需求预览 - 销售管理</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="layout">
+        <!-- 左侧导航 -->
+        <nav class="sidebar">
+            <h1>ERP需求预览</h1>
+            <ul class="menu">
+                <li><a href="#sales" class="active" onclick="showModule('sales')">销售管理</a></li>
+                <li class="sub"><a href="#sales-list" onclick="showModule('sales-list')">  销售订单</a></li>
+                <li class="sub"><a href="#sales-create" onclick="showModule('sales-create')">  新建订单</a></li>
+                <li class="sub"><a href="#sales-detail" onclick="showModule('sales-detail')">  订单详情</a></li>
+            </ul>
+        </nav>
+
+        <!-- 右侧内容区 -->
+        <main class="content">
+
+            <!-- ==================== 销售订单列表 ==================== -->
+            <section id="sales-list" class="module">
+                <div class="page-header">
+                    <h2>销售订单</h2>
+                    <button class="btn btn-primary" onclick="showModule('sales-create')">+ 新建订单</button>
+                </div>
+
+                <!-- 页签 -->
+                <div class="tabs">
+                    <span class="tab active">销售订单</span>
+                </div>
+
+                <!-- 查询条件 -->
+                <div class="search-bar">
+                    <div class="search-item">
+                        <label>订单编号</label>
+                        <input type="text" placeholder="请输入订单编号">
+                    </div>
+                    <div class="search-item">
+                        <label>客户名称</label>
+                        <input type="text" placeholder="请输入客户名称">
+                    </div>
+                    <div class="search-item">
+                        <label>订单状态</label>
+                        <select>
+                            <option value="">全部</option>
+                            <option>草稿</option>
+                            <option>待审核</option>
+                            <option>已审核</option>
+                            <option>已完成</option>
+                            <option>已取消</option>
+                        </select>
+                    </div>
+                    <div class="search-item">
+                        <label>创建时间</label>
+                        <input type="date"> <span>~</span> <input type="date">
+                    </div>
+                    <div class="search-actions">
+                        <button class="btn btn-primary">查询</button>
+                        <button class="btn">重置</button>
+                    </div>
+                </div>
+
+                <!-- 列表 -->
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox"></th>
+                                <th>订单编号</th>
+                                <th>客户名称</th>
+                                <th>商品摘要</th>
+                                <th>收货人</th>
+                                <th>收货电话</th>
+                                <th>订单金额</th>
+                                <th>订单状态</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td class="link" onclick="showModule('sales-detail')">SO202605250001</td>
+                                <td>深圳科技有限公司</td>
+                                <td>笔记本电脑 x2, 无线鼠标 x5</td>
+                                <td>张三</td>
+                                <td>13800138001</td>
+                                <td class="amount">¥25,800.00</td>
+                                <td><span class="tag tag-draft">草稿</span></td>
+                                <td>2026-05-25 10:30</td>
+                                <td class="actions">
+                                    <a class="action-link" onclick="showModule('sales-create')">编辑</a>
+                                    <a class="action-link">提交审核</a>
+                                    <a class="action-link" onclick="showModule('sales-detail')">查看</a>
+                                    <a class="action-link danger">取消</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td class="link" onclick="showModule('sales-detail')">SO202605240003</td>
+                                <td>广州贸易集团</td>
+                                <td>显示器 x10</td>
+                                <td>李四</td>
+                                <td>13900139002</td>
+                                <td class="amount">¥18,500.00</td>
+                                <td><span class="tag tag-pending">待审核</span></td>
+                                <td>2026-05-24 14:20</td>
+                                <td class="actions">
+                                    <a class="action-link" onclick="showModule('sales-detail')">查看</a>
+                                    <a class="action-link danger">取消</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td class="link" onclick="showModule('sales-detail')">SO202605230007</td>
+                                <td>北京创新科技</td>
+                                <td>机械键盘 x20, 显示器 x5</td>
+                                <td>王五</td>
+                                <td>13700137003</td>
+                                <td class="amount">¥32,400.00</td>
+                                <td><span class="tag tag-approved">已审核</span></td>
+                                <td>2026-05-23 09:15</td>
+                                <td class="actions">
+                                    <a class="action-link" onclick="showModule('sales-detail')">查看</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td class="link" onclick="showModule('sales-detail')">SO202605220002</td>
+                                <td>上海实业公司</td>
+                                <td>笔记本电脑 x1, 无线鼠标 x3</td>
+                                <td>赵六</td>
+                                <td>13600136004</td>
+                                <td class="amount">¥12,900.00</td>
+                                <td><span class="tag tag-done">已完成</span></td>
+                                <td>2026-05-22 16:45</td>
+                                <td class="actions">
+                                    <a class="action-link" onclick="showModule('sales-detail')">查看</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td class="link" onclick="showModule('sales-detail')">SO202605210005</td>
+                                <td>成都电子科技</td>
+                                <td>打印机 x2</td>
+                                <td>孙七</td>
+                                <td>13500135005</td>
+                                <td class="amount">¥4,600.00</td>
+                                <td><span class="tag tag-cancel">已取消</span></td>
+                                <td>2026-05-21 11:00</td>
+                                <td class="actions">
+                                    <a class="action-link" onclick="showModule('sales-detail')">查看</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 分页 -->
+                <div class="pagination">
+                    <span class="page-info">共 5 条记录</span>
+                    <div class="page-btns">
+                        <button class="btn btn-sm" disabled>&lt;</button>
+                        <button class="btn btn-sm active">1</button>
+                        <button class="btn btn-sm" disabled>&gt;</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== 新建/编辑订单 ==================== -->
+            <section id="sales-create" class="module hidden">
+                <div class="page-header">
+                    <h2>新建销售订单</h2>
+                    <div>
+                        <button class="btn" onclick="showModule('sales-list')">取消</button>
+                        <button class="btn" onclick="showModule('sales-list')">保存草稿</button>
+                        <button class="btn btn-primary" onclick="showModule('sales-list')">提交审核</button>
+                    </div>
+                </div>
+
+                <!-- 客户信息 -->
+                <div class="form-section">
+                    <h3>客户信息</h3>
+                    <div class="form-grid">
+                        <div class="form-item">
+                            <label><span class="required">*</span> 客户</label>
+                            <input type="text" placeholder="请搜索选择客户" class="long">
+                        </div>
+                        <div class="form-item">
+                            <label>联系人</label>
+                            <input type="text" value="张三" placeholder="选择客户后自动填充">
+                        </div>
+                        <div class="form-item">
+                            <label>联系电话</label>
+                            <input type="text" value="13800138001" placeholder="选择客户后自动填充">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 商品明细 -->
+                <div class="form-section">
+                    <h3>商品明细 <button class="btn btn-sm btn-primary" style="float:right;margin-top:-4px">+ 添加商品</button></h3>
+                    <div class="table-wrapper">
+                        <table class="sub-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:40px">#</th>
+                                    <th><span class="required">*</span> 商品</th>
+                                    <th style="width:120px"><span class="required">*</span> 单价</th>
+                                    <th style="width:100px"><span class="required">*</span> 数量</th>
+                                    <th style="width:80px">单位</th>
+                                    <th style="width:120px">小计</th>
+                                    <th style="width:60px">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td><input type="text" placeholder="请搜索选择商品" style="width:100%"></td>
+                                    <td><input type="number" value="0.00" style="width:100%"></td>
+                                    <td><input type="number" value="1" style="width:100%"></td>
+                                    <td>个</td>
+                                    <td class="amount">¥0.00</td>
+                                    <td><a class="action-link danger">删除</a></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5" style="text-align:right;font-weight:bold">合计：</td>
+                                    <td class="amount" style="font-weight:bold">¥0.00</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 收货信息 -->
+                <div class="form-section">
+                    <h3>收货信息</h3>
+                    <div class="form-grid">
+                        <div class="form-item">
+                            <label><span class="required">*</span> 收货人</label>
+                            <input type="text" value="张三" placeholder="请输入收货人">
+                        </div>
+                        <div class="form-item">
+                            <label><span class="required">*</span> 收货电话</label>
+                            <input type="text" value="13800138001" placeholder="请输入收货电话">
+                        </div>
+                        <div class="form-item full">
+                            <label><span class="required">*</span> 收货地址</label>
+                            <textarea placeholder="请输入详细收货地址" rows="2"></textarea>
+                        </div>
+                        <div class="form-item full">
+                            <label>备注</label>
+                            <textarea placeholder="请输入备注信息" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== 订单详情 ==================== -->
+            <section id="sales-detail" class="module hidden">
+                <div class="page-header">
+                    <h2>订单详情 - SO202605250001</h2>
+                    <div>
+                        <button class="btn" onclick="showModule('sales-list')">返回列表</button>
+                        <button class="btn">编辑</button>
+                        <button class="btn btn-primary">提交审核</button>
+                    </div>
+                </div>
+
+                <!-- 状态信息 -->
+                <div class="detail-status">
+                    <div class="status-item">
+                        <span class="label">订单状态</span>
+                        <span class="tag tag-draft">草稿</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">订单金额</span>
+                        <span class="amount">¥25,800.00</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">创建人</span>
+                        <span>销售员A</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">创建时间</span>
+                        <span>2026-05-25 10:30</span>
+                    </div>
+                </div>
+
+                <!-- 客户信息 -->
+                <div class="form-section">
+                    <h3>客户信息</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item"><span class="label">客户名称</span><span>深圳科技有限公司</span></div>
+                        <div class="detail-item"><span class="label">联系人</span><span>张三</span></div>
+                        <div class="detail-item"><span class="label">联系电话</span><span>13800138001</span></div>
+                    </div>
+                </div>
+
+                <!-- 商品明细 -->
+                <div class="form-section">
+                    <h3>商品明细</h3>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>商品名称</th>
+                                    <th>单价</th>
+                                    <th>数量</th>
+                                    <th>单位</th>
+                                    <th>小计</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>笔记本电脑</td>
+                                    <td>¥8,900.00</td>
+                                    <td>2</td>
+                                    <td>台</td>
+                                    <td class="amount">¥17,800.00</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>无线鼠标</td>
+                                    <td>¥89.00</td>
+                                    <td>5</td>
+                                    <td>个</td>
+                                    <td class="amount">¥445.00</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>USB-C 扩展坞</td>
+                                    <td>¥299.00</td>
+                                    <td>5</td>
+                                    <td>个</td>
+                                    <td class="amount">¥1,495.00</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5" style="text-align:right;font-weight:bold">合计：</td>
+                                    <td class="amount" style="font-weight:bold">¥25,800.00</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 收货信息 -->
+                <div class="form-section">
+                    <h3>收货信息</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item"><span class="label">收货人</span><span>张三</span></div>
+                        <div class="detail-item"><span class="label">收货电话</span><span>13800138001</span></div>
+                        <div class="detail-item full"><span class="label">收货地址</span><span>广东省深圳市南山区科技园路100号</span></div>
+                        <div class="detail-item full"><span class="label">备注</span><span>请尽快发货</span></div>
+                    </div>
+                </div>
+
+                <!-- 跨模块操作 -->
+                <div class="form-section">
+                    <h3>关联操作</h3>
+                    <div class="related-actions">
+                        <button class="btn">生成出库单</button>
+                        <button class="btn">生成应收单</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
