@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP需求预览 - 销售管理</title>
+    <link rel="stylesheet" href="../common/common.css">
+    <link rel="stylesheet" href="sales.css">
+</head>
+<body onload="showModule('sales-list')">
+    <div class="layout">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M3 12V7H21V12H18V17H6V12H3Z" fill="#1890ff"/>
+                            <path d="M6 12V7H3V12H6Z" fill="#096dd9"/>
+                        </svg>
+                    </div>
+                    <div class="logo-text">
+                        <span class="logo-title">ERP</span>
+                        <span class="logo-subtitle">Administrator</span>
+                    </div>
+                </div>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">‹</button>
+            </div>
+            <ul class="menu">
+                <li class="menu-group expanded">
+                    <a href="#sales-list" onclick="toggleMenuGroup(this)">
+                        <span class="menu-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="3" x2="16" y2="21"></line>
+                            </svg>
+                        </span>
+                        <span class="menu-text">销售管理</span>
+                        <span class="menu-arrow">▼</span>
+                    </a>
+                    <ul class="submenu">
+                        <li><a href="#sales-list" class="active" onclick="showModule('sales-list')">销售订单</a></li>
+                        <li><a href="#return-list" onclick="showModule('return-list')">销售退货</a></li>
+                    </ul>
+                </li>
+                <li class="menu-group">
+                    <a href="#customer-list" onclick="goToModule('../06_客户管理/index.html'); toggleMenuGroup(this)">
+                        <span class="menu-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </span>
+                        <span class="menu-text">客户管理</span>
+                        <span class="menu-arrow">▶</span>
+                    </a>
+                    <ul class="submenu hidden">
+                        <li><a href="../06_客户管理/index.html">客户列表</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+        
+        <main>
+            <header class="top-bar">
+                <div class="top-left">
+                    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+                    <span class="breadcrumb" id="breadcrumb">销售管理 > 销售订单</span>
+                </div>
+                <div class="top-right">
+                    <div class="user-info">
+                        <span>系统管理员</span>
+                        <span class="avatar">SA</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content">
+                <section id="sales-list" class="module">
+                    <div class="page-header">
+                        <h2>销售订单管理</h2>
+                        <button class="btn btn-primary" onclick="showModule('sales-create')">+ 新建销售订单</button>
+                    </div>
+                    
+                    <div class="search-bar">
+                        <div class="search-item" style="flex:1;min-width:200px;">
+                            <input type="text" placeholder="客户名称/产品编号/规格编号/订单编号/品牌" style="width:100%">
+                        </div>
+                        <div class="search-item">
+                            <select>
+                                <option value="">全部订单状态</option>
+                                <option>草稿</option>
+                                <option>已审核</option>
+                            </select>
+                        </div>
+                        <div class="search-item">
+                            <select>
+                                <option value="">全部财务状态</option>
+                                <option>未付款</option>
+                                <option>部分付款</option>
+                                <option>全部付款</option>
+                            </select>
+                        </div>
+                        <div class="search-item">
+                            <select>
+                                <option value="">全部发货状态</option>
+                                <option>未发货</option>
+                                <option>部分发货</option>
+                                <option>全部发货</option>
+                            </select>
+                        </div>
+                        <div class="search-item admin-only">
+                            <select>
+                                <option value="">全部业务员</option>
+                                <option>系统管理员</option>
+                                <option>张三</option>
+                            </select>
+                        </div>
+                        <div class="search-actions">
+                            <button class="btn btn-primary">搜索</button>
+                            <button class="btn">重置</button>
+                            <button class="btn btn-sm admin-toggle" onclick="toggleAdminView()">管理员视图</button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox"></th>
+                                    <th style="width:100px">订单日期</th>
+                                    <th style="width:150px">订单编号</th>
+                                    <th style="width:150px">客户名称</th>
+                                    <th style="width:100px">订单金额</th>
+                                    <th style="width:80px">订单状态</th>
+                                    <th style="width:80px">成本</th>
+                                    <th style="width:80px">利润</th>
+                                    <th style="width:90px">财务状态</th>
+                                    <th style="width:100px">发货状态</th>
+                                    <th style="width:220px">收件信息</th>
+                                    <th style="width:80px">业务员</th>
+                                    <th style="width:280px">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td class="text-nowrap">2026/5/24</td>
+                                    <td>
+                                        <span class="expand-icon" onclick="toggleExpand('order1')">▶</span>
+                                        <span class="link" onclick="showModule('sales-detail')">SO202605240004</span>
+                                    </td>
+                                    <td class="text-nowrap">测试客户公司</td>
+                                    <td class="amount">¥123.00</td>
+                                    <td><span class="tag tag-draft">草稿</span></td>
+                                    <td class="amount">¥100.00</td>
+                                    <td class="amount profit">¥23.00</td>
+                                    <td><span class="tag tag-pending">未付款</span></td>
+                                    <td id="status-order1"><span class="tag tag-pending">未发货</span></td>
+                                    <td class="receiving-info" ondblclick="selectAllText(this)">张三 13800138000 北京市朝阳区科技园1号</td>
+                                    <td>系统管理员</td>
+                                    <td class="actions">
+                                        <a class="action-link" onclick="showModule('sales-detail')">详情</a>
+                                        <a class="action-link success" onclick="submitOrder()">提交</a>
+                                        <a class="action-link" onclick="showModule('sales-edit')">重编</a>
+                                        <a class="action-link danger" onclick="confirmDeleteOrder()">删除</a>
+                                        <a class="action-link primary" onclick="generateContract()">合同</a>
+                                    </td>
+                                </tr>
+                                <tr id="expand-order1" class="expand-content hidden">
+                                    <td colspan="13">
+                                        <table class="expand-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>品牌</th>
+                                                    <th>规格编号</th>
+                                                    <th>产品名称</th>
+                                                    <th>规格</th>
+                                                    <th>数量</th>
+                                                    <th>含税单价</th>
+                                                    <th>合计</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>测试品牌</td>
+                                                    <td>SPEC001</td>
+                                                    <td>测试产品A</td>
+                                                    <td>标准</td>
+                                                    <td>1</td>
+                                                    <td class="amount">¥123.00</td>
+                                                    <td class="amount">¥123.00</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td class="text-nowrap">2026/5/23</td>
+                                    <td>
+                                        <span class="expand-icon" onclick="toggleExpand('order2')">▶</span>
+                                        <span class="link" onclick="showModule('sales-detail')">PO202605230003</span>
+                                    </td>
+                                    <td class="text-nowrap">李四个人客户</td>
+                                    <td class="amount">¥8,765.43</td>
+                                    <td><span class="tag tag-approved">已审核</span></td>
+                                    <td class="amount">¥6,500.00</td>
+                                    <td class="amount profit">¥2,265.43</td>
+                                    <td><span class="tag partial">部分付款</span></td>
+                                    <td><span class="tag partial">部分发货</span></td>
+                                    <td class="receiving-info" ondblclick="selectAllText(this)">李四 13900139000 上海市浦东新区张江高科技园</td>
+                                    <td>张三</td>
+                                    <td class="actions">
+                                        <a class="action-link" onclick="showModule('sales-detail')">详情</a>
+                                        <a class="action-link" onclick="showModule('sales-edit')">重编</a>
+                                        <a class="action-link primary" onclick="generateContract()">合同</a>
+                                        <a class="action-link success" onclick="addReturn()">加单</a>
+                                        <a class="action-link" onclick="openShipment('order2')">发货</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pagination">
+                        <div class="page-info">共 2 条记录，当前第 1 页</div>
+                        <div class="page-btns">
+                            <button class="btn btn-sm" disabled>上一页</button>
+                            <button class="btn btn-sm active">1</button>
+                            <button class="btn btn-sm" disabled>下一页</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="return-list" class="module hidden">
+                    <div class="page-header">
+                        <h2>销售退货管理</h2>
+                        <button class="btn btn-primary" onclick="showModule('return-create')">+ 新建退货单</button>
+                    </div>
+                    
+                    <div class="search-bar">
+                        <div class="search-item" style="flex:1;min-width:200px;">
+                            <input type="text" placeholder="退货单号/销售订单号/客户名称" style="width:100%">
+                        </div>
+                        <div class="search-item">
+                            <select>
+                                <option value="">全部退货方式</option>
+                                <option>冲抵金额</option>
+                                <option>转预存</option>
+                                <option>退回账户</option>
+                            </select>
+                        </div>
+                        <div class="search-item">
+                            <select>
+                                <option value="">全部状态</option>
+                                <option>待审核</option>
+                                <option>已完成</option>
+                            </select>
+                        </div>
+                        <div class="search-actions">
+                            <button class="btn btn-primary">搜索</button>
+                            <button class="btn">重置</button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <table class="return-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:150px">退货单号</th>
+                                    <th style="width:150px">销售单号</th>
+                                    <th style="width:150px">客户名称</th>
+                                    <th style="width:100px">规格编号</th>
+                                    <th style="width:200px">产品名称</th>
+                                    <th style="width:80px">退货数量</th>
+                                    <th style="width:100px">退货单价</th>
+                                    <th style="width:100px">退货合计</th>
+                                    <th style="width:80px">审核状态</th>
+                                    <th style="width:140px">退货时间</th>
+                                    <th style="width:100px">退货方式</th>
+                                    <th style="width:80px">销售员</th>
+                                    <th style="width:80px">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td rowspan="2">XTD-20260525-00001</td>
+                                    <td rowspan="2">SO202605240004</td>
+                                    <td rowspan="2">测试客户公司</td>
+                                    <td>SPEC001</td>
+                                    <td>测试产品A</td>
+                                    <td>2</td>
+                                    <td class="amount">¥61.50</td>
+                                    <td rowspan="2" class="amount">¥184.50</td>
+                                    <td rowspan="2"><span class="tag tag-pending">待审核</span></td>
+                                    <td rowspan="2">2026/5/25 10:30</td>
+                                    <td rowspan="2">冲抵金额</td>
+                                    <td rowspan="2">系统管理员</td>
+                                    <td rowspan="2"><a class="action-link" onclick="showModule('return-detail')">详情</a></td>
+                                </tr>
+                                <tr>
+                                    <td>SPEC002</td>
+                                    <td>测试产品B</td>
+                                    <td>1</td>
+                                    <td class="amount">¥61.50</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="sales-create" class="module hidden">
+                    <div class="page-header">
+                        <h2>新建销售订单</h2>
+                        <button class="btn" onclick="showModule('sales-list')">取消</button>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h3>基础信息</h3>
+                        <div style="display:flex;gap:16px;margin-bottom:16px;">
+                            <div style="width:150px;">
+                                <label><span class="required">*</span> 订单日期</label>
+                                <input type="date" value="2026-05-27">
+                            </div>
+                            <div style="flex:1;">
+                                <label><span class="required">*</span> 客户</label>
+                                <input type="text" placeholder="搜索客户名称或编码" onchange="onCustomerSelect(this)">
+                            </div>
+                            <div style="width:150px;">
+                                <label><span class="required">*</span> 结算方式</label>
+                                <select id="settlementMethod">
+                                    <option value="monthly">月结</option>
+                                    <option value="cash">现结</option>
+                                    <option value="prepaid">预付</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:16px;margin-bottom:16px;">
+                            <div style="flex:1;">
+                                <label><span class="required">*</span> 收货信息</label>
+                                <input type="text" id="receivingInfoSearch" placeholder="搜索收货信息" oninput="filterReceivingInfo(this)" onclick="toggleReceivingDropdown()">
+                                <div id="receivingDropdown" class="dropdown-menu" style="display:none;position:absolute;width:300px;">
+                                    <div class="dropdown-item receiving-option" onclick="selectReceivingInfo(this)" data-value="张三 - 13800138000 - 北京市朝阳区科技园1号">张三 - 13800138000 - 北京市朝阳区科技园1号</div>
+                                    <div class="dropdown-item receiving-option" onclick="selectReceivingInfo(this)" data-value="李四 - 13900139000 - 上海市浦东新区张江高科技园">李四 - 13900139000 - 上海市浦东新区张江高科技园</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:16px;">
+                            <div style="flex:1;">
+                                <label><span class="required">*</span> 开票信息</label>
+                                <input type="text" id="invoiceInfoSearch" placeholder="搜索开票信息" oninput="filterInvoiceInfo(this)" onclick="toggleInvoiceDropdown()">
+                                <div id="invoiceDropdown" class="dropdown-menu" style="display:none;position:absolute;width:300px;">
+                                    <div class="dropdown-item invoice-option" onclick="selectInvoiceInfo(this)" data-value="测试客户公司 - 增值税专用发票">测试客户公司 - 增值税专用发票</div>
+                                    <div class="dropdown-item invoice-option" onclick="selectInvoiceInfo(this)" data-value="李四 - 增值税普通发票">李四 - 增值税普通发票</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>商品明细</h3>
+                        <div class="batch-settings" style="margin-bottom:12px;">
+                            <select onchange="batchSetDeliveryMethod(this)">
+                                <option value="">批量设置发货方式</option>
+                                <option value="直运">直运</option>
+                                <option value="物流">物流</option>
+                                <option value="自提">自提</option>
+                                <option value="送货">送货</option>
+                            </select>
+                            <select onchange="batchSetWarehouse(this)">
+                                <option value="">批量设置仓库</option>
+                                <option value="北京仓库">北京仓库</option>
+                                <option value="上海仓库">上海仓库</option>
+                                <option value="深圳仓库">深圳仓库</option>
+                            </select>
+                            <button class="btn btn-sm btn-primary" onclick="addProductRow()">+ 添加商品</button>
+                        </div>
+                        <table id="productTable" class="sub-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:40px">#</th>
+                                    <th>品牌</th>
+                                    <th>规格编号</th>
+                                    <th>产品名称</th>
+                                    <th>包装</th>
+                                    <th>单位</th>
+                                    <th>备注</th>
+                                    <th>原价</th>
+                                    <th>折扣</th>
+                                    <th>数量</th>
+                                    <th>税率</th>
+                                    <th>含税价格</th>
+                                    <th>合计</th>
+                                    <th>库存</th>
+                                    <th>发货方式</th>
+                                    <th>仓库</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td><input type="text" placeholder="品牌"></td>
+                                    <td><input type="text" placeholder="规格编号"></td>
+                                    <td><input type="text" placeholder="搜索选择商品" onchange="onProductSelect(this)"></td>
+                                    <td><input type="text" placeholder="包装"></td>
+                                    <td><input type="text" placeholder="单位"></td>
+                                    <td><input type="text" placeholder="备注"></td>
+                                    <td><input type="number" value="0.00" onchange="calculateRow(this)"></td>
+                                    <td><input type="number" value="1.00" step="0.01" onchange="calculateRow(this)"></td>
+                                    <td><input type="number" value="1" onchange="calculateRow(this)"></td>
+                                    <td><input type="number" value="0.01" step="0.01" readonly></td>
+                                    <td class="amount">¥0.00</td>
+                                    <td class="amount">¥0.00</td>
+                                    <td><span class="tag tag-pending">0</span></td>
+                                    <td>
+                                        <select class="delivery-method" onchange="onDeliveryMethodChange(this)">
+                                            <option value="直运">直运</option>
+                                            <option value="物流">物流</option>
+                                            <option value="自提">自提</option>
+                                            <option value="送货">送货</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select class="warehouse" disabled>
+                                            <option value="">请选择</option>
+                                            <option value="北京仓库">北京仓库</option>
+                                            <option value="上海仓库">上海仓库</option>
+                                            <option value="深圳仓库">深圳仓库</option>
+                                        </select>
+                                    </td>
+                                    <td><a class="action-link danger" onclick="removeProductRow(this)">删除</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>订单汇总</h3>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <span class="label">产品总数量：</span>
+                                <span id="totalQuantity" class="value">0</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">商品折后价：</span>
+                                <span id="subtotalAmount" class="value amount">¥0.00</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">运费：</span>
+                                <input type="number" id="shippingFee" value="0.00" style="width:100px;" onchange="calculateTotal()">
+                            </div>
+                            <div class="summary-item total">
+                                <span class="label">总金额：</span>
+                                <span id="totalAmount" class="value amount">¥0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>备注信息</h3>
+                        <textarea rows="3" placeholder="订单备注信息" style="width:100%;padding:8px;border:1px solid #d9d9d9;border-radius:4px;resize:vertical;"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn" onclick="showModule('sales-list')">取消</button>
+                        <button class="btn btn-primary" onclick="saveOrderDraft()">保存</button>
+                        <button class="btn btn-success" onclick="submitOrder()">保存并提交</button>
+                    </div>
+                </section>
+
+                <section id="sales-detail" class="module hidden">
+                    <div class="page-header">
+                        <h2>订单详情</h2>
+                        <button class="btn" onclick="showModule('sales-list')">返回</button>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <div class="detail-row">
+                            <div class="detail-label">订单编号</div>
+                            <div class="detail-value">SO202605240004</div>
+                            <div class="detail-label">订单状态</div>
+                            <div class="detail-value"><span class="tag tag-draft">草稿</span></div>
+                            <div class="detail-label">订单金额</div>
+                            <div class="detail-value amount">¥123.00</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">创建人</div>
+                            <div class="detail-value">系统管理员</div>
+                            <div class="detail-label">创建时间</div>
+                            <div class="detail-value">2026/5/24 14:30</div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>客户信息</h3>
+                        <div class="detail-row">
+                            <div class="detail-label">客户名称</div>
+                            <div class="detail-value">测试客户公司</div>
+                            <div class="detail-label">联系人</div>
+                            <div class="detail-value">张三</div>
+                            <div class="detail-label">联系电话</div>
+                            <div class="detail-value">13800138000</div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>商品明细</h3>
+                        <table class="sub-table">
+                            <thead>
+                                <tr>
+                                    <th>品牌</th>
+                                    <th>规格编号</th>
+                                    <th>产品名称</th>
+                                    <th>数量</th>
+                                    <th>含税单价</th>
+                                    <th>合计</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>测试品牌</td>
+                                    <td>SPEC001</td>
+                                    <td>测试产品A</td>
+                                    <td>1</td>
+                                    <td class="amount">¥123.00</td>
+                                    <td class="amount">¥123.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>收货信息</h3>
+                        <div class="detail-row">
+                            <div class="detail-label">收货人</div>
+                            <div class="detail-value">张三</div>
+                            <div class="detail-label">收货电话</div>
+                            <div class="detail-value">13800138000</div>
+                            <div class="detail-label">收货地址</div>
+                            <div class="detail-value">北京市朝阳区科技园1号</div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn" onclick="showModule('sales-list')">返回</button>
+                        <button class="btn btn-primary" onclick="showModule('sales-edit')">编辑</button>
+                    </div>
+                </section>
+
+                <section id="sales-edit" class="module hidden">
+                    <div class="page-header">
+                        <h2>编辑销售订单</h2>
+                        <button class="btn" onclick="showModule('sales-list')">取消</button>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h3>基础信息</h3>
+                        <div style="display:flex;gap:16px;margin-bottom:16px;">
+                            <div style="width:150px;">
+                                <label><span class="required">*</span> 订单日期</label>
+                                <input type="date" value="2026-05-24">
+                            </div>
+                            <div style="flex:1;">
+                                <label><span class="required">*</span> 客户</label>
+                                <input type="text" value="测试客户公司" onchange="onCustomerSelect(this)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>商品明细</h3>
+                        <table id="productTableEdit" class="sub-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:40px">#</th>
+                                    <th>品牌</th>
+                                    <th>规格编号</th>
+                                    <th>产品名称</th>
+                                    <th>包装</th>
+                                    <th>单位</th>
+                                    <th>原价</th>
+                                    <th>折扣</th>
+                                    <th>数量</th>
+                                    <th>税率</th>
+                                    <th>含税价格</th>
+                                    <th>合计</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td><input type="text" value="测试品牌"></td>
+                                    <td><input type="text" value="SPEC001"></td>
+                                    <td><input type="text" value="测试产品A"></td>
+                                    <td><input type="text" value="瓶"></td>
+                                    <td><input type="text" value="个"></td>
+                                    <td><input type="number" value="100.00"></td>
+                                    <td><input type="number" value="0.9"></td>
+                                    <td><input type="number" value="1"></td>
+                                    <td><input type="number" value="0.13" readonly></td>
+                                    <td class="amount">¥90.00</td>
+                                    <td class="amount">¥90.00</td>
+                                    <td><a class="action-link danger" onclick="removeProductRow(this)">删除</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button class="btn btn-sm btn-primary" onclick="addProductRow()" style="margin-top:12px;">+ 添加商品</button>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn" onclick="showModule('sales-list')">取消</button>
+                        <button class="btn btn-primary" onclick="saveOrderDraft()">保存</button>
+                        <button class="btn btn-success" onclick="submitOrder()">保存并提交</button>
+                    </div>
+                </section>
+
+                <section id="return-create" class="module hidden">
+                    <div class="page-header">
+                        <h2>新建退货单</h2>
+                        <button class="btn" onclick="showModule('return-list')">取消</button>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h3>基本信息</h3>
+                        <div style="display:flex;gap:16px;margin-bottom:16px;">
+                            <div style="width:200px;">
+                                <label>退货单编号</label>
+                                <input type="text" value="XTD-20260527-00001" readonly>
+                            </div>
+                            <div style="width:150px;">
+                                <label>创建时间</label>
+                                <input type="datetime-local" value="2026-05-27T10:00">
+                            </div>
+                            <div style="width:200px;">
+                                <label><span class="required">*</span> 订单编号</label>
+                                <select>
+                                    <option value="">选择销售订单</option>
+                                    <option value="SO202605240004">SO202605240004 - 测试客户公司</option>
+                                </select>
+                            </div>
+                            <div style="flex:1;">
+                                <label>客户名称</label>
+                                <input type="text" value="测试客户公司" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>退货方式</h3>
+                        <div style="display:flex;gap:16px;">
+                            <label><input type="radio" name="returnType" value="冲抵金额" checked> 冲抵金额</label>
+                            <label><input type="radio" name="returnType" value="转预存"> 转预存</label>
+                            <label><input type="radio" name="returnType" value="退回账户"> 退回账户</label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>备注</h3>
+                        <textarea rows="3" placeholder="退货原因" style="width:100%;padding:8px;border:1px solid #d9d9d9;border-radius:4px;"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn" onclick="showModule('return-list')">取消</button>
+                        <button class="btn btn-primary" onclick="saveReturnDraft()">保存</button>
+                        <button class="btn btn-success" onclick="submitReturn()">保存并提交</button>
+                    </div>
+                </section>
+
+                <section id="return-detail" class="module hidden">
+                    <div class="page-header">
+                        <h2>退货单详情</h2>
+                        <button class="btn" onclick="showModule('return-list')">返回</button>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <div class="detail-row">
+                            <div class="detail-label">退货单号</div>
+                            <div class="detail-value">XTD-20260525-00001</div>
+                            <div class="detail-label">销售单号</div>
+                            <div class="detail-value">SO202605240004</div>
+                            <div class="detail-label">审核状态</div>
+                            <div class="detail-value"><span class="tag tag-pending">待审核</span></div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn" onclick="showModule('return-list')">返回</button>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div id="shipmentModal" class="modal">
+        <div class="modal-content shipment-modal">
+            <div class="modal-header">
+                <h3>发货</h3>
+                <button onclick="closeModal('shipmentModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="shipment-products">
+                    <div class="shipment-product">
+                        <input type="checkbox" class="product-check" checked>
+                        <div class="product-info">
+                            <div class="product-name">测试产品A</div>
+                            <div class="product-spec">SPEC001 | 瓶 | 数量: 1</div>
+                        </div>
+                    </div>
+                    <div class="shipment-product">
+                        <input type="checkbox" class="product-check" checked>
+                        <div class="product-info">
+                            <div class="product-name">测试产品B</div>
+                            <div class="product-spec">SPEC002 | 盒 | 数量: 1</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="shipment-form">
+                    <label>快递单号：</label>
+                    <input type="text" placeholder="请输入快递单号">
+                    <select>
+                        <option value="">选择快递公司</option>
+                        <option value="顺丰">顺丰速运</option>
+                        <option value="京东">京东物流</option>
+                        <option value="德邦">德邦快递</option>
+                        <option value="邮政">中国邮政</option>
+                        <option value="圆通">圆通速递</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('shipmentModal')">取消</button>
+                <button class="btn btn-primary" onclick="confirmShipment()">确认发货</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../common/common.js"></script>
+    <script src="sales.js"></script>
+</body>
+</html>

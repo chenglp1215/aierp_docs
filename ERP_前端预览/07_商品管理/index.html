@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERP需求预览 - 商品管理</title>
+    <link rel="stylesheet" href="../common/common.css">
+    <style>
+        .tree-indent { margin-left: 20px; }
+        .expand-icon { cursor: pointer; margin-right: 4px; }
+        .tag-success { background: #f6ffed; color: #389e0d; border-color: #b7eb8f; }
+        .tag-danger { background: #fff2f0; color: #ff4d4f; border-color: #ffccc7; }
+        .tag-primary { background: #e6f7ff; color: #1890ff; border-color: #91d5ff; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+        .status-dot.on { background: #52c41a; }
+        .status-dot.off { background: #d9d9d9; }
+        .logo-placeholder { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #1890ff; color: #fff; font-size: 14px; font-weight: bold; }
+        
+        .form-section {
+            background: #fff;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        
+        .form-section h3 {
+            margin-bottom: 16px;
+            font-size: 16px;
+            color: #1a1a1a;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 12px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .form-item {
+            display: flex;
+            flex-direction: column;
+            min-width: 200px;
+        }
+        
+        .form-item label {
+            margin-bottom: 4px;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .form-item input, .form-item select, .form-item textarea {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .form-item textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .page-header h2 {
+            font-size: 20px;
+            color: #1a1a1a;
+        }
+        
+        .search-bar {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            padding: 16px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        
+        .search-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .search-item label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .search-item input, .search-item select {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .search-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .spec-table {
+            margin-top: 12px;
+            border: 1px solid #e8e8e8;
+            border-radius: 4px;
+        }
+
+        .spec-table th, .spec-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .spec-table th {
+            background: #fafafa;
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .add-spec-btn {
+            margin-top: 12px;
+            padding: 6px 12px;
+            background: #1890ff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .add-spec-btn:hover {
+            background: #40a9ff;
+        }
+
+        .remove-spec-btn {
+            color: #ff4d4f;
+            cursor: pointer;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body onload="showModule('category-list')">
+    <div class="layout">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M3 12V7H21V12H18V17H6V12H3Z" fill="#1890ff"/>
+                            <path d="M6 12V7H3V12H6Z" fill="#096dd9"/>
+                        </svg>
+                    </div>
+                    <div class="logo-text">
+                        <span class="logo-title">ERP</span>
+                        <span class="logo-subtitle">Administrator</span>
+                    </div>
+                </div>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">‹</button>
+            </div>
+            <ul class="menu">
+                <li><a href="../index.html">
+                    <span class="menu-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                    </span>
+                    <span class="menu-text">首页</span>
+                </a></li>
+                <li class="menu-group expanded">
+                    <a href="#category-list" onclick="toggleMenuGroup(this)">
+                        <span class="menu-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </span>
+                        <span class="menu-text">商品管理</span>
+                        <span class="menu-arrow">▼</span>
+                    </a>
+                    <ul class="submenu">
+                        <li><a href="#category-list" class="active" onclick="showModule('category-list')">分类管理</a></li>
+                        <li><a href="#brand-list" onclick="showModule('brand-list')">品牌管理</a></li>
+                        <li><a href="#product-list" onclick="showModule('product-list')">产品管理</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+        
+        <main>
+            <header class="top-bar">
+                <div class="top-left">
+                    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+                    <span class="breadcrumb" id="breadcrumb">商品管理 > 分类管理</span>
+                </div>
+                <div class="top-right">
+                    <div class="user-info">
+                        <span>系统管理员</span>
+                        <span class="avatar">SA</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content">
+                <section id="category-list" class="module">
+                    <div class="page-header">
+                        <h2>分类管理</h2>
+                        <button class="btn btn-primary" onclick="showModule('category-create')">+ 新建分类</button>
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:200px">分类名称</th>
+                                    <th style="width:60px">层级</th>
+                                    <th style="width:100px">税务编码</th>
+                                    <th style="width:60px">排序</th>
+                                    <th style="width:60px">展示</th>
+                                    <th style="width:150px">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <span class="expand-icon" onclick="toggleExpand('cat1')">▼</span>
+                                        <span>分类1</span>
+                                    </td>
+                                    <td><span class="tag tag-success">一级</span></td>
+                                    <td>1231</td>
+                                    <td>0</td>
+                                    <td><span class="status-dot on"></span></td>
+                                    <td class="actions">
+                                        <a class="action-link" onclick="showModule('category-edit')">编辑</a>
+                                        <a class="action-link" onclick="showModule('category-create-child')">添加下级</a>
+                                        <a class="action-link danger" onclick="confirmDelete('分类')">删除</a>
+                                    </td>
+                                </tr>
+                                <tr id="expand-cat1" class="">
+                                    <td colspan="6" class="tree-indent">
+                                        <table class="sub-table" style="width:100%;">
+                                            <tbody>
+                                                <tr>
+                                                    <td style="width:200px">
+                                                        <span class="expand-icon" onclick="toggleExpand('cat1-1')">▼</span>
+                                                        <span>分类1-1</span>
+                                                    </td>
+                                                    <td style="width:60px"><span class="tag tag-primary">二级</span></td>
+                                                    <td style="width:100px">-</td>
+                                                    <td style="width:60px">0</td>
+                                                    <td style="width:60px"><span class="status-dot on"></span></td>
+                                                    <td style="width:150px" class="actions">
+                                                        <a class="action-link" onclick="showModule('category-edit')">编辑</a>
+                                                        <a class="action-link" onclick="showModule('category-create-child')">添加下级</a>
+                                                        <a class="action-link danger" onclick="confirmDelete('分类')">删除</a>
+                                                    </td>
+                                                </tr>
+                                                <tr id="expand-cat1-1" class="">
+                                                    <td colspan="6" class="tree-indent">
+                                                        <table class="sub-table" style="width:100%;">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td style="width:200px"><span>分类111</span></td>
+                                                                    <td style="width:60px"><span class="tag">三级</span></td>
+                                                                    <td style="width:100px">12312</td>
+                                                                    <td style="width:60px">0</td>
+                                                                    <td style="width:60px"><span class="status-dot on"></span></td>
+                                                                    <td style="width:150px" class="actions">
+                                                                        <a class="action-link" onclick="showModule('category-edit')">编辑</a>
+                                                                        <a class="action-link danger" onclick="confirmDelete('分类')">删除</a>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="width:200px"><span>分类111</span></td>
+                                                                    <td style="width:60px"><span class="tag">三级</span></td>
+                                                                    <td style="width:100px">12312</td>
+                                                                    <td style="width:60px">0</td>
+                                                                    <td style="width:60px"><span class="status-dot on"></span></td>
+                                                                    <td style="width:150px" class="actions">
+                                                                        <a class="action-link" onclick="showModule('category-edit')">编辑</a>
+                                                                        <a class="action-link danger" onclick="confirmDelete('分类')">删除</a>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="expand-icon" onclick="toggleExpand('cat2')">▶</span>
+                                        <span>分类2</span>
+                                    </td>
+                                    <td><span class="tag tag-success">一级</span></td>
+                                    <td>321</td>
+                                    <td>0</td>
+                                    <td><span class="status-dot on"></span></td>
+                                    <td class="actions">
+                                        <a class="action-link" onclick="showModule('category-edit')">编辑</a>
+                                        <a class="action-link" onclick="showModule('category-create-child')">添加下级</a>
+                                        <a class="action-link danger" onclick="confirmDelete('分类')">删除</a>
+                                    </td>
+                                </tr>
+                                <tr id="expand-cat2" class="hidden">
+                                    <td colspan="6" class="tree-indent"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="brand-list" class="module hidden">
+                    <div class="page-header">
+                        <h2>品牌管理</h2>
+                        <button class="btn btn-primary" onclick="showModule('brand-create')">+ 新建品牌</button>
+                    </div>
+                    
+                    <div class="search-bar">
+                        <div class="search-item" style="flex:1;min-width:200px;">
+                            <label>搜索品牌名称</label>
+                            <input type="text" placeholder="搜索品牌名称..." style="width:100%">
+                        </div>
+                        <div class="search-item">
+                            <label>状态</label>
+                            <select>
+                                <option value="">全部状态</option>
+                                <option>启用</option>
+                                <option>停用</option>
+                            </select>
+                        </div>
+                        <div class="search-actions">
+                            <button class="btn btn-primary">搜索</button>
+                            <button class="btn">重置</button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:80px">Logo</th>
+                                    <th style="width:200px">品牌名称</th>
+                                    <th style="width:120px">采购人员</th>
+                                    <th style="width:100px">默认运费</th>
+                                    <th style="width:100px">商品数量</th>
+                                    <th style="width:200px">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><div class="logo-placeholder">运</div></td>
+                                    <td>运费测试品牌B_9980</td>
+                                    <td>-</td>
+                                    <td class="amount">¥30.00</td>
+                                    <td>0</td>
+                                    <td class="actions">
+                                        <a class="action-link" onclick="showModule('brand-edit')">编辑</a>
+                                        <a class="action-link" onclick="toggleBrandStatus()">停用</a>
+                                        <a class="action-link danger" onclick="confirmDelete('品牌')">删除</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><div class="logo-placeholder">运</div></td>
+                                    <td>运费测试品牌A_8272</td>
+                                    <td>-</td>
+                                    <td class="amount">¥80.00</td>
+                                    <td>0</td>
+                                    <td class="actions">
+                                        <a class="action-link" onclick="showModule('brand-edit')">编辑</a>
+                                        <a class="action-link" onclick="toggleBrandStatus()">停用</a>
+                                        <a class="action-link danger" onclick="confirmDelete('品牌')">删除</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><div class="logo-placeholder">折</div></td>
+                                    <td>折扣测试品牌</td>
+                                    <td>-</td>
+                                    <td class="amount">-</td>
+                                    <td>0</td>
+                                    <td class="actions">
+                                        <a class="action-link" onclick="showModule('brand-edit')">编辑</a>
+                                        <a class="action-link" onclick="toggleBrandStatus()">停用</a>
+                                        <a class="action-link danger" onclick="confirmDelete('品牌')">删除</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><div class="logo-placeholder">碧</div></td>
+                                    <td>碧云天</td>
+                                    <td>-</td>
+                                    <td class="amount">¥10.00</td>
+                                    <td>0</td>
+                                    <td class="actions">
+                                        <a class="action-link" onclick="showModule('brand-edit')">编辑</a>
+                                        <a class="action-link" onclick="toggleBrandStatus()">停用</a>
+                                        <a class="action-link danger" onclick="confirmDelete('品牌')">删除</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="product-list" class="module hidden">
+                    <div class="page-header">
+                        <h2>产品管理</h2>
+                        <div style="display:flex;gap:12px;">
+                            <button class="btn" id="uploadBtnProduct" onclick="showModule('product-upload')">📥 批量上传</button>
+                            <button class="btn btn-primary" onclick="showModule('product-create')">+ 新建产品</button>
+                        </div>
+                    </div>
+                    
+                    <div class="search-bar">
+                        <div class="search-item" style="flex:1;min-width:200px;">
+                            <label>搜索产品名称、编号</label>
+                            <input type="text" placeholder="搜索产品名称、编号..." style="width:100%">
+                        </div>
+                        <div class="search-item">
+                            <label>品牌</label>
+                            <select>
+                                <option value="">全部品牌</option>
+                                <option>运费测试品牌A</option>
+                                <option>运费测试品牌B</option>
+                                <option>碧云天</option>
+                            </select>
+                        </div>
+                        <div class="search-item">
+                            <label>分类</label>
+                            <select>
+                                <option value="">全部分类</option>
+                                <option>分类1</option>
+                                <option>分类2</option>
+                                <option>分类1-1</option>
+                            </select>
+                        </div>
+                        <div class="search-actions">
+                            <button class="btn btn-primary">搜索</button>
+                            <button class="btn">重置</button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:60px">序号</th>
+                                    <th style="width:150px">产品编号</th>
+                                    <th style="width:200px">产品名称</th>
+                                    <th style="width:100px">品牌</th>
+                                    <th style="width:100px">分类</th>
+                                    <th style="width:60px">产品状态</th>
+                                    <th style="width:100px">目录价格</th>
+                                    <th style="width:150px">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>
+                                        <span class="expand-icon" onclick="toggleExpand('prod1')">▼</span>
+                                        PROD202605251271852
+                                    </td>
+                                    <td>运费测试商品B_5695</td>
+                                    <td>运费测试品牌B_4357</td>
+                                    <td>运费测试分类_3095</td>
+                                    <td><span class="tag tag-success">在售</span></td>
+                                    <td class="amount">200</td>
+                                    <td class="actions">
+                                        <a class="action-link" onclick="showModule('product-edit')">编辑</a>
+                                        <a class="action-link" id="btn-cancel-prod1" onclick="confirmCancel('产品')">作废</a>
+                                        <a class="action-link danger" id="btn-delete-prod1" onclick="confirmDelete('产品')">删除</a>
+                                    </td>
+                                </tr>
+                                <tr id="expand-prod1">
+                                    <td colspan="12">
+                                        <div style="padding:16px;background:#fafafa;">
+                                            <h4 style="margin-bottom:12px;">规格列表</h4>
+                                            <table class="spec-table" style="width:100%;">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:120px">规格编号</th>
+                                                        <th style="width:150px">包装</th>
+                                                        <th style="width:80px">包装单位</th>
+                                                        <th style="width:100px">目录价格</th>
+                                                        <th style="width:120px">库存</th>
+                                                        <th style="width:60px">操作</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr id="spec-prod1-1">
+                                                        <td>PROD202605251271852-标准规格</td>
+                                                        <td>标准规格</td>
+                                                        <td>瓶</td>
+                                                        <td class="amount">¥200.00</td>
+                                                        <td>
+                                                            <div style="font-size:12px;line-height:1.4;">
+                                                                库存a：5<br/>
+                                                                库存b：2
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <a class="action-link danger" onclick="confirmDeleteSpec('规格', 'spec-prod1-1')">删除</a>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>
+                                        <span class="expand-icon" onclick="toggleExpand('prod2')">▼</span>
+                                        PROD202605251608025
+                                    </td>
+                                    <td>运费测试商品A_6007</td>
+                                    <td>运费测试品牌A_8105</td>
+                                    <td>运费测试分类_3095</td>
+                                    <td><span class="tag tag-success">在售</span></td>
+                                    <td class="amount">100</td>
+                                    <td class="actions">
+                                        <a class="action-link" onclick="showModule('product-edit')">编辑</a>
+                                        <a class="action-link" id="btn-cancel-prod2" onclick="confirmCancel('产品')">作废</a>
+                                        <a class="action-link danger" id="btn-delete-prod2" onclick="confirmDelete('产品')">删除</a>
+                                    </td>
+                                </tr>
+                                <tr id="expand-prod2">
+                                    <td colspan="12">
+                                        <div style="padding:16px;background:#fafafa;">
+                                            <h4 style="margin-bottom:12px;">规格列表</h4>
+                                            <table class="spec-table" style="width:100%;">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:120px">规格编号</th>
+                                                        <th style="width:150px">包装</th>
+                                                        <th style="width:80px">包装单位</th>
+                                                        <th style="width:100px">目录价格</th>
+                                                        <th style="width:120px">库存</th>
+                                                        <th style="width:60px">操作</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr id="spec-prod2-1">
+                                                        <td>PROD202605251608025-标准规格</td>
+                                                        <td>标准规格</td>
+                                                        <td>盒</td>
+                                                        <td class="amount">¥100.00</td>
+                                                        <td>
+                                                            <div style="font-size:12px;line-height:1.4;">
+                                                                库存a：10<br/>
+                                                                库存b：5
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <a class="action-link danger" onclick="confirmDeleteSpec('规格', 'spec-prod2-1')">删除</a>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>
+                                        <span class="expand-icon" onclick="toggleExpand('prod3')">▼</span>
+                                        PROD202605241292596
+                                    </td>
+                                    <td>测试库存商品</td>
+                                    <td>测试库存品牌</td>
+                                    <td>测试库存分类</td>
+                                    <td><span class="tag tag-success">在售</span></td>
+                                    <td class="amount">88</td>
+                                    <td class="actions">
+                                        <a class="action-link" onclick="showModule('product-edit')">编辑</a>
+                                        <a class="action-link" id="btn-cancel-prod3" onclick="confirmCancel('产品')">作废</a>
+                                        <a class="action-link danger" id="btn-delete-prod3" onclick="confirmDelete('产品')">删除</a>
+                                    </td>
+                                </tr>
+                                <tr id="expand-prod3">
+                                    <td colspan="12">
+                                        <div style="padding:16px;background:#fafafa;">
+                                            <h4 style="margin-bottom:12px;">规格列表</h4>
+                                            <table class="spec-table" style="width:100%;">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:120px">规格编号</th>
+                                                        <th style="width:150px">包装</th>
+                                                        <th style="width:80px">包装单位</th>
+                                                        <th style="width:100px">目录价格</th>
+                                                        <th style="width:120px">库存</th>
+                                                        <th style="width:60px">操作</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr id="spec-prod3-1">
+                                                        <td>PROD202605241292596-500g规格</td>
+                                                        <td>500g规格</td>
+                                                        <td>袋</td>
+                                                        <td class="amount">¥88.00</td>
+                                                        <td>
+                                                            <div style="font-size:12px;line-height:1.4;">
+                                                                库存a：3<br/>
+                                                                库存b：1
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <a class="action-link danger" onclick="confirmDeleteSpec('规格', 'spec-prod3-1')">删除</a>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pagination">
+                        <div class="page-info">共 10 条记录，当前第 1 页</div>
+                        <div class="page-btns">
+                            <button class="btn btn-sm" disabled>上一页</button>
+                            <button class="btn btn-sm active">1</button>
+                            <button class="btn btn-sm">下一页</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="category-create" class="module hidden">
+                    <div class="page-header">
+                        <h2>新建分类</h2>
+                        <button class="btn" onclick="showModule('category-list')">取消</button>
+                    </div>
+                    <div class="form-section">
+                        <h3>分类信息</h3>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label><span class="required">*</span> 分类名称</label>
+                                <input type="text" placeholder="请输入分类名称">
+                            </div>
+                            <div class="form-item">
+                                <label>税务编码</label>
+                                <input type="text" placeholder="请输入税务编码">
+                            </div>
+                            <div class="form-item">
+                                <label>排序</label>
+                                <input type="number" value="0">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label>展示</label>
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <label><input type="radio" name="display" value="1" checked> 是</label>
+                                    <label><input type="radio" name="display" value="0"> 否</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn" onclick="showModule('category-list')">取消</button>
+                        <button class="btn btn-primary" onclick="saveCategory()">保存</button>
+                    </div>
+                </section>
+
+                <section id="category-create-child" class="module hidden">
+                    <div class="page-header">
+                        <h2>添加下级分类</h2>
+                        <button class="btn" onclick="showModule('category-list')">取消</button>
+                    </div>
+                    <div class="form-section">
+                        <h3>子分类信息</h3>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label>上级分类</label>
+                                <input type="text" value="分类1-1" readonly style="background:#f5f5f5;">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label><span class="required">*</span> 分类名称</label>
+                                <input type="text" placeholder="请输入子分类名称">
+                            </div>
+                            <div class="form-item">
+                                <label>税务编码</label>
+                                <input type="text" placeholder="请输入税务编码">
+                            </div>
+                            <div class="form-item">
+                                <label>排序</label>
+                                <input type="number" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn" onclick="showModule('category-list')">取消</button>
+                        <button class="btn btn-primary" onclick="saveCategory()">保存</button>
+                    </div>
+                </section>
+
+                <section id="category-edit" class="module hidden">
+                    <div class="page-header">
+                        <h2>编辑分类</h2>
+                        <button class="btn" onclick="showModule('category-list')">取消</button>
+                    </div>
+                    <div class="form-section">
+                        <h3>分类信息</h3>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label><span class="required">*</span> 分类名称</label>
+                                <input type="text" value="分类1">
+                            </div>
+                            <div class="form-item">
+                                <label>税务编码</label>
+                                <input type="text" value="1231">
+                            </div>
+                            <div class="form-item">
+                                <label>排序</label>
+                                <input type="number" value="0">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label>展示</label>
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <label><input type="radio" name="display-edit" value="1" checked> 是</label>
+                                    <label><input type="radio" name="display-edit" value="0"> 否</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn" onclick="showModule('category-list')">取消</button>
+                        <button class="btn btn-primary" onclick="saveCategory()">保存</button>
+                    </div>
+                </section>
+
+                <section id="brand-create" class="module hidden">
+                    <div class="page-header">
+                        <h2>新建品牌</h2>
+                        <button class="btn" onclick="showModule('brand-list')">取消</button>
+                    </div>
+                    <div class="form-section">
+                        <h3>品牌信息</h3>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label><span class="required">*</span> 品牌名称</label>
+                                <input type="text" placeholder="请输入品牌名称">
+                            </div>
+                            <div class="form-item">
+                                <label>Logo</label>
+                                <input type="file" accept="image/*">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label>描述</label>
+                                <textarea placeholder="请输入品牌描述"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label>采购人员</label>
+                                <select>
+                                    <option value="">请选择采购人员</option>
+                                    <option>张三</option>
+                                    <option>李四</option>
+                                </select>
+                            </div>
+                            <div class="form-item">
+                                <label>默认运费</label>
+                                <input type="number" value="0.00" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn" onclick="showModule('brand-list')">取消</button>
+                        <button class="btn btn-primary" onclick="saveBrand()">保存</button>
+                    </div>
+                </section>
+
+                <section id="brand-edit" class="module hidden">
+                    <div class="page-header">
+                        <h2>编辑品牌</h2>
+                        <button class="btn" onclick="showModule('brand-list')">取消</button>
+                    </div>
+                    <div class="form-section">
+                        <h3>品牌信息</h3>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label><span class="required">*</span> 品牌名称</label>
+                                <input type="text" value="运费测试品牌B_9980">
+                            </div>
+                            <div class="form-item">
+                                <label>Logo</label>
+                                <input type="file" accept="image/*">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label>描述</label>
+                                <textarea>测试品牌B</textarea>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label>采购人员</label>
+                                <select>
+                                    <option value="" selected>-</option>
+                                    <option>张三</option>
+                                    <option>李四</option>
+                                </select>
+                            </div>
+                            <div class="form-item">
+                                <label>默认运费</label>
+                                <input type="number" value="30.00" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn" onclick="showModule('brand-list')">取消</button>
+                        <button class="btn btn-primary" onclick="saveBrand()">保存</button>
+                    </div>
+                </section>
+
+                <section id="product-create" class="module hidden">
+                    <div class="page-header">
+                        <h2>新建产品</h2>
+                        <button class="btn" onclick="showModule('product-list')">取消</button>
+                    </div>
+                    <div class="form-section">
+                        <h3>产品信息</h3>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label><span class="required">*</span> 产品编号</label>
+                                <input type="text" id="productCodeCreate" placeholder="请输入产品编号" onchange="updateSpecCode()">
+                            </div>
+                            <div class="form-item">
+                                <label><span class="required">*</span> 产品名称</label>
+                                <input type="text" id="productNameCreate" placeholder="请输入产品名称" onchange="updateSpecInfo()">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label><span class="required">*</span> 品牌</label>
+                                <div style="display:flex;gap:8px;">
+                                    <select id="brandSelectCreate" style="flex:1;" onchange="onBrandChange(this)">
+                                        <option value="">请选择品牌</option>
+                                        <option value="brandA" data-logo="运">运费测试品牌A</option>
+                                        <option value="brandB" data-logo="运">运费测试品牌B</option>
+                                        <option value="brandC" data-logo="碧">碧云天</option>
+                                    </select>
+                                    <button class="btn" onclick="showQuickAddBrand()" title="快速新增品牌">+</button>
+                                </div>
+                            </div>
+                            <div class="form-item">
+                                <label><span class="required">*</span> 分类</label>
+                                <select id="categorySelectCreate" onchange="onCategoryChange(this)">
+                                    <option value="">请选择分类</option>
+                                    <option value="cat1" data-taxcode="10101010100">分类1</option>
+                                    <option value="cat2" data-taxcode="10102010100">分类2</option>
+                                    <option value="cat3" data-taxcode="10103010100">分类1-1</option>
+                                </select>
+                            </div>
+                            <div class="form-item">
+                                <label>税务编码</label>
+                                <input type="text" id="taxCodeCreate" placeholder="选择分类后自动填充" readonly>
+                            </div>
+                            <div class="form-item">
+                                <label>产品图片</label>
+                                <div id="productImagePreview" style="display:flex;align-items:center;gap:8px;">
+                                    <div id="brandLogoPreview" class="logo-placeholder" style="width:40px;height:40px;display:none;"></div>
+                                    <input type="file" accept="image/*">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>规格信息</h3>
+                        <table class="spec-table" id="specTableCreate" style="width:100%;">
+                            <thead>
+                                <tr>
+                                    <th style="width:150px">规格编号</th>
+                                    <th style="width:150px">包装</th>
+                                    <th style="width:80px">包装单位</th>
+                                    <th style="width:100px">目录价格</th>
+                                    <th style="width:60px">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="text" id="specCodeCreate1" placeholder="自动生成" style="width:130px;" readonly></td>
+                                    <td><input type="text" id="packageCreate1" placeholder="请输入包装" style="width:130px;" onchange="autoGenerateSpecCode('Create', 1)"></td>
+                                    <td><input type="text" placeholder="包装单位" style="width:70px;"></td>
+                                    <td><input type="number" value="0.00" step="0.01" style="width:80px;"></td>
+                                    <td><span class="remove-spec-btn" onclick="removeSpecRow(this)">删除</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button class="add-spec-btn" onclick="addSpecRow('specTableCreate')">+ 添加规格</button>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn" onclick="showModule('product-list')">取消</button>
+                        <button class="btn btn-primary" onclick="saveProduct()">保存</button>
+                    </div>
+                </section>
+
+                <section id="product-edit" class="module hidden">
+                    <div class="page-header">
+                        <h2>编辑产品</h2>
+                        <button class="btn" onclick="showModule('product-list')">取消</button>
+                    </div>
+                    <div class="form-section">
+                        <h3>产品信息</h3>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label><span class="required">*</span> 产品编号</label>
+                                <input type="text" id="productCodeEdit" value="PROD202605251271852" onchange="updateSpecCode()">
+                            </div>
+                            <div class="form-item">
+                                <label><span class="required">*</span> 产品名称</label>
+                                <input type="text" id="productNameEdit" value="运费测试商品B_5695" onchange="updateSpecInfo()">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label><span class="required">*</span> 品牌</label>
+                                <div style="display:flex;gap:8px;">
+                                    <select id="brandSelectEdit" style="flex:1;">
+                                        <option value="">请选择品牌</option>
+                                        <option>运费测试品牌A</option>
+                                        <option selected>运费测试品牌B_4357</option>
+                                        <option>碧云天</option>
+                                    </select>
+                                    <button class="btn" onclick="showQuickAddBrand()" title="快速新增品牌">+</button>
+                                </div>
+                            </div>
+                            <div class="form-item">
+                                <label><span class="required">*</span> 分类</label>
+                                <select id="categorySelectEdit">
+                                    <option value="">请选择分类</option>
+                                    <option>分类1</option>
+                                    <option>分类2</option>
+                                    <option selected>运费测试分类_3095</option>
+                                </select>
+                            </div>
+                            <div class="form-item">
+                                <label>产品图片</label>
+                                <input type="file" accept="image/*">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-item">
+                                <label><span class="required">*</span> 产品状态</label>
+                                <select>
+                                    <option value="1" selected>在售</option>
+                                    <option value="0">下架</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>规格信息</h3>
+                        <table class="spec-table" id="specTableEdit" style="width:100%;">
+                            <thead>
+                                <tr>
+                                    <th style="width:150px">规格编号</th>
+                                    <th style="width:150px">包装</th>
+                                    <th style="width:80px">包装单位</th>
+                                    <th style="width:100px">目录价格</th>
+                                    <th style="width:60px">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="text" id="specCodeEdit1" value="PROD202605251271852-标准规格" style="width:130px;"></td>
+                                    <td><input type="text" id="packageEdit1" value="标准规格" style="width:130px;" onchange="autoGenerateSpecCode('Edit', 1)"></td>
+                                    <td><input type="text" value="瓶" style="width:70px;"></td>
+                                    <td><input type="number" value="200.00" step="0.01" style="width:80px;"></td>
+                                    <td><span class="remove-spec-btn" onclick="removeSpecRow(this)">删除</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button class="add-spec-btn" onclick="addSpecRow('specTableEdit')">+ 添加规格</button>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn" onclick="showModule('product-list')">取消</button>
+                        <button class="btn btn-primary" onclick="saveProduct()">保存</button>
+                    </div>
+                </section>
+
+                <section id="product-upload" class="module hidden">
+                    <div class="page-header">
+                        <h2>批量上传商品</h2>
+                        <button class="btn" onclick="showModule('product-list')">返回</button>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>下载模板</h3>
+                        <div style="display:flex;gap:12px;align-items:center;">
+                            <button class="btn btn-primary" onclick="downloadTemplate()">📄 下载导入模板</button>
+                            <span style="color:#666;font-size:13px;">下载Excel模板，按格式填写商品信息后上传</span>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>上传文件</h3>
+                        <div style="border:2px dashed #d9d9d9;border-radius:8px;padding:40px;text-align:center;cursor:pointer;" onclick="document.getElementById('uploadFile').click()" id="uploadArea">
+                            <div style="font-size:48px;margin-bottom:12px;">📁</div>
+                            <div style="color:#666;margin-bottom:8px;">点击或拖拽文件到此处上传</div>
+                            <div style="color:#999;font-size:12px;">支持 .xlsx, .xls 格式</div>
+                            <input type="file" id="uploadFile" accept=".xlsx,.xls" style="display:none;" onchange="handleFileSelect(event)">
+                        </div>
+                        <div id="fileInfo" style="margin-top:12px;display:none;">
+                            <div style="display:flex;align-items:center;gap:8px;padding:12px;background:#f5f5f5;border-radius:4px;">
+                                <span>📄</span>
+                                <span id="fileName" style="flex:1;"></span>
+                                <span class="action-link danger" onclick="removeFile()">删除</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section" id="previewSection" style="display:none;">
+                        <h3>数据预览</h3>
+                        <div style="overflow-x:auto;">
+                            <table class="spec-table" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th style="width:60px">行号</th>
+                                        <th style="width:150px">产品编号</th>
+                                        <th style="width:150px">产品名称</th>
+                                        <th style="width:120px">产品分类</th>
+                                        <th style="width:150px">税务编码</th>
+                                        <th style="width:100px">品牌Logo</th>
+                                        <th style="width:100px">产品图片</th>
+                                        <th style="width:120px">规格编号</th>
+                                        <th style="width:100px">品牌</th>
+                                        <th style="width:100px">包装</th>
+                                        <th style="width:100px">包装单位</th>
+                                        <th style="width:100px">标签模板</th>
+                                        <th style="width:100px">价格</th>
+                                        <th style="width:80px">状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="previewTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="form-section" id="errorSection" style="display:none;">
+                        <h3>错误提示</h3>
+                        <div id="errorList" style="color:#ff4d4f;">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn" onclick="showModule('product-list')">取消</button>
+                        <button class="btn btn-primary" id="uploadBtn" onclick="uploadProducts()" disabled>开始导入</button>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="../common/common.js"></script>
+    <script>
+        // 模拟当前用户角色
+        const currentUserRole = 'admin'; // admin 或 user
+        
+        function toggleExpand(id) {
+            const element = document.getElementById('expand-' + id);
+            const icon = document.querySelector(`[onclick="toggleExpand('${id}')"]`);
+            if (element) {
+                element.classList.toggle('hidden');
+                icon.textContent = element.classList.contains('hidden') ? '▶' : '▼';
+            }
+        }
+        
+        function confirmDelete(type) {
+            if (confirm(`确定要删除该${type}吗？`)) {
+                alert(`${type}删除成功`);
+            }
+        }
+        
+        function confirmCancel(type) {
+            if (confirm(`确定要作废该${type}吗？`)) {
+                alert(`${type}作废成功`);
+            }
+        }
+        
+        // 重写showModule函数，添加产品列表更新逻辑
+        const originalShowModule = window.showModule;
+        if (originalShowModule) {
+            window.showModule = function(moduleId) {
+                originalShowModule(moduleId);
+                if (moduleId === 'product-list') {
+                    setTimeout(() => {
+                        initProductListUpdates();
+                        initPagePermissions();
+                    }, 50);
+                }
+            };
+        }
+        
+        // 初始化页面权限控制
+        function initPagePermissions() {
+            // 控制批量上传按钮显示
+            const uploadBtn = document.getElementById('uploadBtnProduct');
+            if (uploadBtn) {
+                uploadBtn.style.display = currentUserRole === 'admin' ? 'inline-block' : 'none';
+            }
+            
+            // 控制复制、作废和删除按钮显示
+            for (let i = 1; i <= 3; i++) {
+                const copyBtn = document.getElementById(`btn-copy-prod${i}`);
+                const cancelBtn = document.getElementById(`btn-cancel-prod${i}`);
+                const deleteBtn = document.getElementById(`btn-delete-prod${i}`);
+                const specDeleteBtn = document.getElementById(`btn-delete-spec-prod${i}-1`);
+                
+                if (currentUserRole !== 'admin') {
+                    if (copyBtn) copyBtn.style.display = 'none';
+                    if (cancelBtn) cancelBtn.style.display = 'none';
+                    if (deleteBtn) deleteBtn.style.display = 'none';
+                    if (specDeleteBtn) specDeleteBtn.style.display = 'none';
+                }
+            }
+        }
+        
+        // 复制产品功能
+        function copyProduct(prodId) {
+            // 模拟从产品列表获取数据
+            const productData = {
+                'prod1': {
+                    code: 'PROD202605251271852',
+                    name: '运费测试商品B_5695',
+                    brand: '运费测试品牌B_4357',
+                    category: '运费测试分类_3095',
+                    specs: [
+                        { code: 'PROD202605251271852-标准规格', package: '标准规格', unit: '瓶', price: 200 }
+                    ]
+                },
+                'prod2': {
+                    code: 'PROD202605251608025',
+                    name: '运费测试商品A_6007',
+                    brand: '运费测试品牌A_8105',
+                    category: '运费测试分类_3095',
+                    specs: [
+                        { code: 'PROD202605251608025-标准规格', package: '标准规格', unit: '盒', price: 100 }
+                    ]
+                },
+                'prod3': {
+                    code: 'PROD202605241292596',
+                    name: '测试库存商品',
+                    brand: '测试库存品牌',
+                    category: '测试库存分类',
+                    specs: [
+                        { code: 'PROD202605241292596-500g规格', package: '500g规格', unit: '袋', price: 88 }
+                    ]
+                }
+            };
+            
+            const data = productData[prodId];
+            if (data) {
+                // 跳转到新建产品页面并填入数据
+                showModule('product-create');
+                
+                // 延迟执行，确保页面元素加载完成
+                setTimeout(() => {
+                    const productCodeInput = document.getElementById('productCodeCreate');
+                    const productNameInput = document.getElementById('productNameCreate');
+                    const brandSelect = document.getElementById('brandSelectCreate');
+                    const categorySelect = document.getElementById('categorySelectCreate');
+                    
+                    if (productCodeInput) productCodeInput.value = data.code + '_copy';
+                    if (productNameInput) productNameInput.value = data.name + '(复制)';
+                    if (brandSelect) {
+                        for (let opt of brandSelect.options) {
+                            if (opt.text === data.brand) {
+                                opt.selected = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (categorySelect) {
+                        for (let opt of categorySelect.options) {
+                            if (opt.text === data.category) {
+                                opt.selected = true;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // 填充规格信息
+                    const specTable = document.getElementById('specTableCreate');
+                    if (specTable && data.specs.length > 0) {
+                        const tbody = specTable.querySelector('tbody');
+                        tbody.innerHTML = '';
+                        
+                        data.specs.forEach((spec, index) => {
+                            const rowCount = index + 1;
+                            const newRow = document.createElement('tr');
+                            newRow.innerHTML = `
+                                <td><input type="text" id="specCodeCreate${rowCount}" value="${spec.code}_copy" style="width:130px;" readonly></td>
+                                <td><input type="text" id="packageCreate${rowCount}" value="${spec.package}" style="width:130px;" onchange="autoGenerateSpecCode('Create', ${rowCount})"></td>
+                                <td><input type="text" value="${spec.unit}" style="width:70px;"></td>
+                                <td><input type="number" value="${spec.price}" step="0.01" style="width:80px;"></td>
+                                <td><span class="remove-spec-btn" onclick="removeSpecRow(this)">删除</span></td>
+                            `;
+                            tbody.appendChild(newRow);
+                        });
+                    }
+                }, 100);
+            }
+        }
+        
+        // 监听产品列表菜单点击
+        const productMenuItems = document.querySelectorAll('.submenu a[href="#product-list"]');
+        productMenuItems.forEach(function(item) {
+            item.addEventListener('click', function() {
+                setTimeout(function() {
+                    initPagePermissions();
+                }, 50);
+            });
+        });
+        
+        function toggleBrandStatus() {
+            alert('品牌状态已切换');
+        }
+        
+        function saveCategory() {
+            alert('分类保存成功');
+            showModule('category-list');
+        }
+        
+        function saveBrand() {
+            alert('品牌保存成功');
+            showModule('brand-list');
+        }
+        
+        function saveProduct() {
+            alert('产品保存成功');
+            showModule('product-list');
+        }
+        
+        function addSpecRow(tableId) {
+            const table = document.getElementById(tableId);
+            const tbody = table.querySelector('tbody');
+            const rowCount = tbody.children.length + 1;
+            const suffix = tableId.replace('specTable', '');
+            
+            const productCode = document.getElementById(`productCode${suffix}`)?.value || '';
+            
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="text" id="specCode${suffix}${rowCount}" placeholder="自动生成" style="width:130px;" readonly></td>
+                <td><input type="text" id="package${suffix}${rowCount}" placeholder="请输入包装" style="width:130px;" onchange="autoGenerateSpecCode('${suffix}', ${rowCount})"></td>
+                <td><input type="text" placeholder="包装单位" style="width:70px;"></td>
+                <td><input type="number" value="0.00" step="0.01" style="width:80px;"></td>
+                <td><span class="remove-spec-btn" onclick="removeSpecRow(this)">删除</span></td>
+            `;
+            tbody.appendChild(newRow);
+        }
+        
+        function removeSpecRow(element) {
+            const row = element.closest('tr');
+            const tbody = row.parentElement;
+            if (tbody.children.length > 1) {
+                row.remove();
+            } else {
+                alert('至少需要保留一条规格记录');
+            }
+        }
+        
+        function confirmDeleteSpec(type, specId) {
+            if (confirm(`确定要删除该${type}吗？`)) {
+                const row = document.getElementById(specId);
+                if (row) {
+                    row.remove();
+                }
+                alert(`${type}删除成功`);
+            }
+        }
+        
+        function autoGenerateSpecCode(suffix, rowNum) {
+            const productCode = document.getElementById(`productCode${suffix}`)?.value;
+            const packageValue = document.getElementById(`package${suffix}${rowNum}`)?.value;
+            
+            if (productCode && packageValue) {
+                const specCodeInput = document.getElementById(`specCode${suffix}${rowNum}`);
+                if (specCodeInput) {
+                    specCodeInput.value = `${productCode}-${packageValue}`;
+                }
+            }
+        }
+        
+        function updateSpecCode() {
+            document.querySelectorAll('input[id^="specCode"]').forEach(input => {
+                const match = input.id.match(/specCode(\w+)(\d+)/);
+                if (match) {
+                    const suffix = match[1];
+                    const rowNum = match[2];
+                    const productCode = document.getElementById(`productCode${suffix}`)?.value;
+                    const packageValue = document.getElementById(`package${suffix}${rowNum}`)?.value;
+                    
+                    if (productCode && packageValue && !input.readOnly) {
+                        input.value = `${productCode}-${packageValue}`;
+                    }
+                }
+            });
+        }
+        
+        function updateSpecInfo() {
+            document.querySelectorAll('input[id^="specCode"]').forEach(input => {
+                const match = input.id.match(/specCode(\w+)(\d+)/);
+                if (match) {
+                    const suffix = match[1];
+                    const rowNum = match[2];
+                    const productCode = document.getElementById(`productCode${suffix}`)?.value;
+                    const productName = document.getElementById(`productName${suffix}`)?.value;
+                    const packageValue = document.getElementById(`package${suffix}${rowNum}`)?.value;
+                    
+                    if (productCode && packageValue && !input.readOnly) {
+                        input.value = `${productCode}-${packageValue}`;
+                    }
+                }
+            });
+        }
+        
+        function showQuickAddBrand() {
+            const brandName = prompt('请输入新品牌名称：');
+            if (brandName) {
+                const brandSelects = document.querySelectorAll('select[id^="brandSelect"]');
+                brandSelects.forEach(select => {
+                    const option = document.createElement('option');
+                    option.value = brandName;
+                    option.text = brandName;
+                    option.selected = true;
+                    select.appendChild(option);
+                });
+                alert(`品牌"${brandName}"已添加并同步到品牌管理`);
+                
+                // 模拟同步到品牌管理
+                console.log(`新品牌已添加：${brandName}`);
+            }
+        }
+
+        function downloadTemplate() {
+            alert('正在下载商品批量导入模板...\n\n模板字段说明：\n- 行号：自动生成或手动填写\n- 产品编号：必填\n- 产品名称：必填\n- 产品分类：必填，需与系统中分类一致（下拉选择）\n- 产品图片：可选，图片URL或本地路径\n- 规格编号：必填\n- 品牌：必填，需与系统中品牌一致\n- 包装：必填，包装说明\n- 包装单位：必填，如：个、盒、箱\n- 标签模板：可选\n- 价格：必填\n\n注意：产品编号、规格编号、品牌三者联合唯一，三者一致时将覆盖原有产品');
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+                    alert('请上传Excel文件（.xlsx或.xls格式）');
+                    return;
+                }
+                
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('fileInfo').style.display = 'block';
+                document.getElementById('uploadBtn').disabled = false;
+                
+                // 模拟数据预览
+                showPreviewData();
+            }
+        }
+
+        function getTaxCodeByCategory(category) {
+            const taxCodeMap = {
+                '分类1': '10101010100',
+                '分类2': '10102010100',
+                '分类1-1': '10103010100'
+            };
+            return taxCodeMap[category] || '';
+        }
+        
+        function showPreviewData() {
+            const previewBody = document.getElementById('previewTableBody');
+            const previewSection = document.getElementById('previewSection');
+            
+            function getBrandLogoByName(brandName) {
+                const logoMap = {
+                    '运费测试品牌A': '运',
+                    '运费测试品牌B': '运',
+                    '碧云天': '碧'
+                };
+                return logoMap[brandName] || '';
+            }
+            
+            // 模拟示例数据
+            const sampleData = [
+                { row: 1, productCode: 'PROD001', productName: '测试产品1', category: '分类1', image: 'image1.jpg', specCode: 'SPEC001', brand: '运费测试品牌A', package: '500g/袋', packageUnit: '袋', labelTemplate: '标准', price: 100, status: '正常' },
+                { row: 2, productCode: 'PROD002', productName: '测试产品2', category: '分类2', image: '', specCode: 'SPEC002', brand: '碧云天', package: '1kg/盒', packageUnit: '盒', labelTemplate: '', price: 200, status: '正常' },
+                { row: 3, productCode: 'PROD003', productName: '测试产品3', category: '分类1-1', image: 'image3.jpg', specCode: 'SPEC003', brand: '运费测试品牌B', package: '塑料瓶', packageUnit: '瓶', labelTemplate: '', price: 150, status: '正常' }
+            ];
+            
+            previewBody.innerHTML = sampleData.map(item => `
+                <tr>
+                    <td>${item.row}</td>
+                    <td>${item.productCode}</td>
+                    <td>${item.productName}</td>
+                    <td>${item.category}</td>
+                    <td>${getTaxCodeByCategory(item.category)}</td>
+                    <td><div class="logo-placeholder" style="width:32px;height:32px;font-size:14px;">${getBrandLogoByName(item.brand)}</div></td>
+                    <td>${item.image ? '📷' : '-'}</td>
+                    <td>${item.specCode}</td>
+                    <td>${item.brand}</td>
+                    <td>${item.package || '-'}</td>
+                    <td>${item.packageUnit}</td>
+                    <td>${item.labelTemplate || '-'}</td>
+                    <td class="amount">¥${item.price.toFixed(2)}</td>
+                    <td><span class="tag tag-success">${item.status}</span></td>
+                </tr>
+            `).join('');
+            
+            previewSection.style.display = 'block';
+        }
+
+        function removeFile() {
+            document.getElementById('uploadFile').value = '';
+            document.getElementById('fileInfo').style.display = 'none';
+            document.getElementById('previewSection').style.display = 'none';
+            document.getElementById('errorSection').style.display = 'none';
+            document.getElementById('uploadBtn').disabled = true;
+        }
+
+        function uploadProducts() {
+            if (confirm('确定要导入这些商品吗？')) {
+                // 模拟导入过程
+                const btn = document.getElementById('uploadBtn');
+                btn.textContent = '导入中...';
+                btn.disabled = true;
+                
+                setTimeout(() => {
+                    alert('商品批量导入成功！\n\n共处理：3条\n新增成功：2条\n新增失败：1条（错误数据已保留）');
+                    btn.textContent = '开始导入';
+                    showModule('product-list');
+                }, 1500);
+            }
+        }
+        
+        // 页面加载完成后初始化
+        window.onload = function() {
+            // 确保默认显示分类列表
+            showModule('category-list');
+            // 初始化权限控制
+            initPagePermissions();
+            // 延迟执行产品列表更新
+            setTimeout(() => {
+                initProductListUpdates();
+            }, 100);
+        };
+        
+        // 更新产品列表页面
+        function initProductListUpdates() {
+            // 找到产品列表中的搜索栏
+            const productSection = document.getElementById('product-list');
+            if (!productSection) return;
+            
+            // 更新操作列宽度
+            const headers = productSection.querySelectorAll('th');
+            if (headers.length >= 8) {
+                headers[7].style.width = '250px';
+            }
+            
+            // 找到搜索栏中的分类选择并替换
+            const searchItems = productSection.querySelectorAll('.search-item');
+            searchItems.forEach(item => {
+                const label = item.querySelector('label');
+                if (label && label.textContent === '分类') {
+                    label.textContent = '产品状态';
+                    const select = item.querySelector('select');
+                    if (select) {
+                        select.innerHTML = `
+                            <option value="1" selected>在售</option>
+                            <option value="2">作废</option>
+                            <option value="">全部</option>
+                        `;
+                    }
+                }
+            });
+            
+            // 为每个产品添加复制按钮（避免重复添加）
+            const productRows = productSection.querySelectorAll('tbody > tr');
+            let productIndex = 1;
+            productRows.forEach((row) => {
+                // 跳过展开的规格行
+                if (row.id && row.id.startsWith('expand-')) return;
+                if (productIndex > 3) return;
+                
+                const actions = row.querySelector('.actions');
+                if (actions) {
+                    // 检查是否已存在复制按钮
+                    const existingCopyBtn = actions.querySelector(`#btn-copy-prod${productIndex}`);
+                    if (!existingCopyBtn) {
+                        const editLink = actions.querySelector('a');
+                        if (editLink) {
+                            const copyLink = document.createElement('a');
+                            copyLink.className = 'action-link';
+                            copyLink.id = `btn-copy-prod${productIndex}`;
+                            copyLink.setAttribute('onclick', `copyProduct('prod${productIndex}')`);
+                            copyLink.textContent = '复制';
+                            editLink.parentNode.insertBefore(copyLink, editLink.nextSibling);
+                        }
+                    }
+                }
+                productIndex++;
+            });
+        }
+        
+        function onCategoryChange(select) {
+            var taxCodeInput = document.getElementById('taxCodeCreate');
+            if (!taxCodeInput) {
+                taxCodeInput = document.getElementById('taxCodeUpload');
+            }
+            
+            if (taxCodeInput) {
+                var selectedOption = select.options[select.selectedIndex];
+                var taxCode = selectedOption.getAttribute('data-taxcode');
+                taxCodeInput.value = taxCode || '';
+            }
+        }
+        
+        function onBrandChange(select) {
+            var brandLogoPreview = document.getElementById('brandLogoPreview');
+            if (!brandLogoPreview) return;
+            
+            var selectedOption = select.options[select.selectedIndex];
+            var logoChar = selectedOption.getAttribute('data-logo');
+            
+            if (logoChar) {
+                brandLogoPreview.textContent = logoChar;
+                brandLogoPreview.style.display = 'flex';
+            } else {
+                brandLogoPreview.textContent = '';
+                brandLogoPreview.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
