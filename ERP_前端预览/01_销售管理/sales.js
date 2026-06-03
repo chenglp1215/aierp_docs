@@ -177,14 +177,12 @@ function addProductRow() {
     var newRow = document.createElement('tr');
     newRow.innerHTML = '<td>' + rowNum + '</td>' +
         '<td style="position:relative;">' +
-        '<input type="text" class="brand-input" placeholder="品牌" autocomplete="off" oninput="onBrandFilterInput(this)" onclick="showBrandDropdown(this)">' +
+        '<input type="text" class="brand-input" placeholder="品牌" autocomplete="off" oninput="onBrandInput(this)" onclick="showBrandDropdown(this)">' +
         '<div class="brand-dropdown hidden"></div></td>' +
         '<td style="position:relative;">' +
-        '<input type="text" class="spec-input" placeholder="规格编号" autocomplete="off" oninput="onSpecFilterInput(this)" onclick="showSpecDropdown(this)">' +
+        '<input type="text" class="spec-input" placeholder="规格编号" autocomplete="off" oninput="onSpecInput(this)" onclick="showSpecDropdown(this)">' +
         '<div class="spec-dropdown hidden"></div></td>' +
-        '<td style="position:relative;">' +
-        '<input type="text" class="product-input" placeholder="产品名称" autocomplete="off" oninput="onProductFilterInput(this)" onclick="showProductDropdown(this)">' +
-        '<div class="product-dropdown hidden"></div></td>' +
+        '<td><input type="text" class="product-input" placeholder="产品名称"></td>' +
         '<td><input type="text" placeholder="包装"></td>' +
         '<td><input type="text" placeholder="单位"></td>' +
         '<td><input type="text" placeholder="备注"></td>' +
@@ -438,8 +436,8 @@ document.addEventListener('click', function(event) {
         if (invoiceDropdown) invoiceDropdown.style.display = 'none';
     }
     
-    // 关闭品牌、规格、产品名称下拉
-    var dropdowns = document.querySelectorAll('.brand-dropdown, .spec-dropdown, .product-dropdown');
+    // 关闭品牌、规格下拉
+    var dropdowns = document.querySelectorAll('.brand-dropdown, .spec-dropdown');
     dropdowns.forEach(function(dropdown) {
         if (!dropdown.contains(event.target) && !dropdown.previousElementSibling.contains(event.target)) {
             dropdown.classList.add('hidden');
@@ -447,7 +445,7 @@ document.addEventListener('click', function(event) {
     });
 });
 
-// 模拟产品数据：支持按规格编号、产品名称、品牌搜索
+// 模拟产品数据
 var productData = [
     { brand: '测试品牌', spec: 'SPEC001', product: '测试产品A', price: 100, unit: '个', packaging: '瓶' },
     { brand: '品牌B', spec: 'SPEC001', product: '测试产品B', price: 120, unit: '盒', packaging: '箱' },
@@ -459,7 +457,7 @@ var productData = [
     { brand: '品牌F', spec: 'ABC-100', product: '产品Z', price: 150, unit: '套', packaging: '盒' }
 ];
 
-// 获取所有唯一规格编号
+// 获取所有唯一规格
 function getAllSpecs() {
     var specs = [];
     productData.forEach(function(item) {
@@ -481,90 +479,35 @@ function getAllBrands() {
     return brands.sort();
 }
 
-// 获取所有唯一产品名称
-function getAllProducts() {
-    var products = [];
-    productData.forEach(function(item) {
-        if (products.indexOf(item.product) === -1) {
-            products.push(item.product);
-        }
-    });
-    return products.sort();
-}
-
-// 根据条件筛选产品
-function filterProducts(specFilter, brandFilter, productFilter) {
-    return productData.filter(function(item) {
-        var specMatch = !specFilter || item.spec.toLowerCase().indexOf(specFilter.toLowerCase()) > -1;
-        var brandMatch = !brandFilter || item.brand.toLowerCase().indexOf(brandFilter.toLowerCase()) > -1;
-        var productMatch = !productFilter || item.product.toLowerCase().indexOf(productFilter.toLowerCase()) > -1;
-        return specMatch && brandMatch && productMatch;
-    });
-}
-
-// 显示品牌下拉
-function showBrandDropdown(input) {
-    var dropdown = input.nextElementSibling;
-    if (dropdown && dropdown.classList.contains('brand-dropdown')) {
-        dropdown.classList.remove('hidden');
-        var row = input.closest('tr');
-        var specValue = row.querySelector('.spec-input').value;
-        var productValue = row.querySelector('.product-input').value;
-        renderBrandDropdown(dropdown, specValue, productValue);
-    }
-}
-
-// 渲染品牌下拉列表
-function renderBrandDropdown(dropdown, specFilter, productFilter) {
-    var filtered = filterProducts(specFilter, null, productFilter);
+// 根据规格筛选品牌
+function getBrandsBySpec(spec) {
     var brands = [];
-    filtered.forEach(function(item) {
-        if (brands.indexOf(item.brand) === -1) {
+    productData.forEach(function(item) {
+        if (item.spec === spec && brands.indexOf(item.brand) === -1) {
             brands.push(item.brand);
         }
     });
-    
-    var html = '<div class="dropdown-item" onclick="selectBrand(this, null)">-- 不限品牌 --</div>';
-    brands.forEach(function(brand) {
-        html += '<div class="dropdown-item" onclick="selectBrand(this, \'' + brand + '\')">' + brand + '</div>';
-    });
-    if (brands.length === 0) {
-        html = '<div class="dropdown-item" style="color:#999;">无可用品牌</div>';
-    }
-    dropdown.innerHTML = html;
+    return brands.sort();
 }
 
-// 品牌输入过滤
-function onBrandFilterInput(input) {
-    var dropdown = input.nextElementSibling;
-    if (dropdown && dropdown.classList.contains('brand-dropdown')) {
-        dropdown.classList.remove('hidden');
-        var row = input.closest('tr');
-        var specValue = row.querySelector('.spec-input').value;
-        var productValue = row.querySelector('.product-input').value;
-        renderBrandDropdown(dropdown, specValue, productValue);
-    }
-}
-
-// 选择品牌
-function selectBrand(element, brand) {
-    var dropdown = element.closest('.brand-dropdown');
-    var input = dropdown.previousElementSibling;
-    var row = input.closest('tr');
-    
-    input.value = brand || '';
-    
-    // 如果选择了品牌且只有一个匹配产品，自动填充
-    if (brand) {
-        var specValue = row.querySelector('.spec-input').value;
-        var productValue = row.querySelector('.product-input').value;
-        var matches = filterProducts(specValue, brand, productValue);
-        if (matches.length === 1) {
-            fillProductRow(row, matches[0]);
+// 根据品牌筛选规格
+function getSpecsByBrand(brand) {
+    var specs = [];
+    productData.forEach(function(item) {
+        if (item.brand === brand && specs.indexOf(item.spec) === -1) {
+            specs.push(item.spec);
         }
-    }
-    
-    dropdown.classList.add('hidden');
+    });
+    return specs.sort();
+}
+
+// 根据品牌和规格筛选产品
+function filterProducts(brand, spec) {
+    return productData.filter(function(item) {
+        var brandMatch = !brand || item.brand === brand;
+        var specMatch = !spec || item.spec === spec;
+        return brandMatch && specMatch;
+    });
 }
 
 // 显示规格下拉
@@ -574,41 +517,33 @@ function showSpecDropdown(input) {
         dropdown.classList.remove('hidden');
         var row = input.closest('tr');
         var brandValue = row.querySelector('.brand-input').value;
-        var productValue = row.querySelector('.product-input').value;
-        renderSpecDropdown(dropdown, brandValue, productValue);
+        renderSpecDropdown(dropdown, brandValue);
     }
 }
 
 // 渲染规格下拉列表
-function renderSpecDropdown(dropdown, brandFilter, productFilter) {
-    var filtered = filterProducts(null, brandFilter, productFilter);
-    var specs = [];
-    filtered.forEach(function(item) {
-        if (specs.indexOf(item.spec) === -1) {
-            specs.push(item.spec);
-        }
-    });
+function renderSpecDropdown(dropdown, brandFilter) {
+    var specs = getAllSpecs();
+    if (brandFilter) {
+        specs = getSpecsByBrand(brandFilter);
+    }
     
     var html = '<div class="dropdown-item" onclick="selectSpec(this, null)">-- 不限规格 --</div>';
     specs.forEach(function(spec) {
-        var count = filtered.filter(function(item) { return item.spec === spec; }).length;
-        html += '<div class="dropdown-item" onclick="selectSpec(this, \'' + spec + '\')">' + spec + ' (' + count + '个产品)</div>';
+        var count = productData.filter(function(item) { return item.spec === spec; }).length;
+        html += '<div class="dropdown-item" onclick="selectSpec(this, \'' + spec + '\')">' + spec + ' (' + count + '个品牌)</div>';
     });
-    if (specs.length === 0) {
-        html = '<div class="dropdown-item" style="color:#999;">无可用规格</div>';
-    }
     dropdown.innerHTML = html;
 }
 
-// 规格输入过滤
-function onSpecFilterInput(input) {
+// 规格输入时显示下拉
+function onSpecInput(input) {
     var dropdown = input.nextElementSibling;
     if (dropdown && dropdown.classList.contains('spec-dropdown')) {
         dropdown.classList.remove('hidden');
         var row = input.closest('tr');
         var brandValue = row.querySelector('.brand-input').value;
-        var productValue = row.querySelector('.product-input').value;
-        renderSpecDropdown(dropdown, brandValue, productValue);
+        renderSpecDropdown(dropdown, brandValue);
     }
 }
 
@@ -617,97 +552,91 @@ function selectSpec(element, spec) {
     var dropdown = element.closest('.spec-dropdown');
     var input = dropdown.previousElementSibling;
     var row = input.closest('tr');
+    var brandInput = row.querySelector('.brand-input');
     
     input.value = spec || '';
+    dropdown.classList.add('hidden');
     
-    // 如果选择了规格且只有一个匹配产品，自动填充
+    // 如果选择了规格，更新品牌下拉显示该规格可用的品牌
     if (spec) {
-        var brandValue = row.querySelector('.brand-input').value;
-        var productValue = row.querySelector('.product-input').value;
-        var matches = filterProducts(spec, brandValue, productValue);
-        if (matches.length === 1) {
-            fillProductRow(row, matches[0]);
+        var brands = getBrandsBySpec(spec);
+        var dropdown = brandInput.nextElementSibling;
+        if (dropdown && dropdown.classList.contains('brand-dropdown')) {
+            var html = '<div class="dropdown-item" onclick="selectBrand(this, null)">-- 不限品牌 --</div>';
+            brands.forEach(function(brand) {
+                html += '<div class="dropdown-item" onclick="selectBrand(this, \'' + brand + '\')">' + brand + '</div>';
+            });
+            dropdown.innerHTML = html;
         }
     }
-    
-    dropdown.classList.add('hidden');
 }
 
-// 显示产品名称下拉
-function showProductDropdown(input) {
+// 显示品牌下拉
+function showBrandDropdown(input) {
     var dropdown = input.nextElementSibling;
-    if (dropdown && dropdown.classList.contains('product-dropdown')) {
+    if (dropdown && dropdown.classList.contains('brand-dropdown')) {
         dropdown.classList.remove('hidden');
         var row = input.closest('tr');
-        var brandValue = row.querySelector('.brand-input').value;
         var specValue = row.querySelector('.spec-input').value;
-        renderProductDropdown(dropdown, brandValue, specValue);
+        renderBrandDropdown(dropdown, specValue);
     }
 }
 
-// 渲染产品名称下拉列表
-function renderProductDropdown(dropdown, brandFilter, specFilter) {
-    var filtered = filterProducts(specFilter, brandFilter, null);
-    var products = [];
-    filtered.forEach(function(item) {
-        if (products.indexOf(item.product) === -1) {
-            products.push(item.product);
-        }
-    });
-    
-    var html = '<div class="dropdown-item" onclick="selectProduct(this, null)">-- 不限产品 --</div>';
-    products.forEach(function(product) {
-        var count = filtered.filter(function(item) { return item.product === product; }).length;
-        html += '<div class="dropdown-item" onclick="selectProduct(this, \'' + product + '\')">' + product + ' (' + count + '个规格)</div>';
-    });
-    if (products.length === 0) {
-        html = '<div class="dropdown-item" style="color:#999;">无可用产品</div>';
+// 渲染品牌下拉列表
+function renderBrandDropdown(dropdown, specFilter) {
+    var brands = getAllBrands();
+    if (specFilter) {
+        brands = getBrandsBySpec(specFilter);
     }
+    
+    var html = '<div class="dropdown-item" onclick="selectBrand(this, null)">-- 不限品牌 --</div>';
+    brands.forEach(function(brand) {
+        html += '<div class="dropdown-item" onclick="selectBrand(this, \'' + brand + '\')">' + brand + '</div>';
+    });
     dropdown.innerHTML = html;
 }
 
-// 产品名称输入过滤
-function onProductFilterInput(input) {
+// 品牌输入时显示下拉
+function onBrandInput(input) {
     var dropdown = input.nextElementSibling;
-    if (dropdown && dropdown.classList.contains('product-dropdown')) {
+    if (dropdown && dropdown.classList.contains('brand-dropdown')) {
         dropdown.classList.remove('hidden');
         var row = input.closest('tr');
-        var brandValue = row.querySelector('.brand-input').value;
         var specValue = row.querySelector('.spec-input').value;
-        renderProductDropdown(dropdown, brandValue, specValue);
+        renderBrandDropdown(dropdown, specValue);
     }
 }
 
-// 选择产品
-function selectProduct(element, product) {
-    var dropdown = element.closest('.product-dropdown');
+// 选择品牌
+function selectBrand(element, brand) {
+    var dropdown = element.closest('.brand-dropdown');
     var input = dropdown.previousElementSibling;
     var row = input.closest('tr');
+    var specInput = row.querySelector('.spec-input');
     
-    input.value = product || '';
+    input.value = brand || '';
+    dropdown.classList.add('hidden');
     
-    // 如果选择了产品且只有一个匹配，自动填充
-    if (product) {
-        var brandValue = row.querySelector('.brand-input').value;
-        var specValue = row.querySelector('.spec-input').value;
-        var matches = filterProducts(specValue, brandValue, product);
-        if (matches.length === 1) {
-            fillProductRow(row, matches[0]);
+    // 如果选择了品牌，更新规格下拉显示该品牌可用的规格
+    if (brand) {
+        var specs = getSpecsByBrand(brand);
+        var dropdown = specInput.nextElementSibling;
+        if (dropdown && dropdown.classList.contains('spec-dropdown')) {
+            var html = '<div class="dropdown-item" onclick="selectSpec(this, null)">-- 不限规格 --</div>';
+            specs.forEach(function(spec) {
+                var count = productData.filter(function(item) { return item.spec === spec; }).length;
+                html += '<div class="dropdown-item" onclick="selectSpec(this, \'' + spec + '\')">' + spec + ' (' + count + '个品牌)</div>';
+            });
+            dropdown.innerHTML = html;
         }
     }
-    
-    dropdown.classList.add('hidden');
 }
 
 // 填充产品行
 function fillProductRow(row, item) {
-    var brandInput = row.querySelector('.brand-input');
-    var specInput = row.querySelector('.spec-input');
-    var productInput = row.querySelector('.product-input');
-    
-    brandInput.value = item.brand;
-    specInput.value = item.spec;
-    productInput.value = item.product;
+    row.querySelector('.brand-input').value = item.brand;
+    row.querySelector('.spec-input').value = item.spec;
+    row.querySelector('.product-input').value = item.product;
     
     row.querySelector('td:nth-child(5) input').value = item.packaging;
     row.querySelector('td:nth-child(6) input').value = item.unit;

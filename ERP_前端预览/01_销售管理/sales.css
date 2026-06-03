@@ -271,8 +271,8 @@
     background: #fff;
 }
 
-.brand-dropdown,
-.product-dropdown {
+.spec-dropdown,
+.brand-dropdown {
     position: absolute;
     top: 100%;
     left: 0;
@@ -284,6 +284,10 @@
     border-radius: 4px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     z-index: 1000;
+}
+
+.spec-dropdown {
+    min-width: 250px;
 }
 
 .brand-dropdown .dropdown-item,
