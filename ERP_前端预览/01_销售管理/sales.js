@@ -176,8 +176,10 @@ function addProductRow() {
 
     var newRow = document.createElement('tr');
     newRow.innerHTML = '<td>' + rowNum + '</td>' +
-        '<td><input type="text" placeholder="品牌"></td>' +
-        '<td><input type="text" placeholder="规格编号"></td>' +
+        '<td><input type="text" class="brand-input" placeholder="品牌"></td>' +
+        '<td style="position:relative;">' +
+        '<input type="text" class="spec-input" placeholder="规格编号" autocomplete="off" oninput="onSpecInput(this)" onclick="showSpecDropdown(this)">' +
+        '<div class="spec-dropdown hidden"></div></td>' +
         '<td><input type="text" placeholder="搜索选择商品" onchange="onProductSelect(this)"></td>' +
         '<td><input type="text" placeholder="包装"></td>' +
         '<td><input type="text" placeholder="单位"></td>' +
@@ -431,4 +433,169 @@ document.addEventListener('click', function(event) {
     if (!isInvoiceClick && !isInvoiceDropdownClick) {
         if (invoiceDropdown) invoiceDropdown.style.display = 'none';
     }
+    
+    var specInputs = document.querySelectorAll('.spec-input');
+    specInputs.forEach(function(input) {
+        var dropdown = input.nextElementSibling;
+        if (dropdown && dropdown.classList.contains('spec-dropdown')) {
+            if (!input.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.add('hidden');
+            }
+        }
+    });
 });
+
+// 模拟规格数据：规格编号 -> [品牌列表]
+var specBrandMap = {
+    'SPEC': [
+        { brand: '测试品牌', spec: 'SPEC001', product: '测试产品A', price: 100, unit: '个', packaging: '瓶' },
+        { brand: '品牌B', spec: 'SPEC001', product: '测试产品B', price: 120, unit: '盒', packaging: '箱' },
+        { brand: '品牌C', spec: 'SPEC001', product: '测试产品C', price: 90, unit: '箱', packaging: '包' }
+    ],
+    'SPEC001': [
+        { brand: '测试品牌', spec: 'SPEC001', product: '测试产品A', price: 100, unit: '个', packaging: '瓶' }
+    ],
+    'SPEC002': [
+        { brand: '品牌B', spec: 'SPEC002', product: '测试产品B', price: 120, unit: '盒', packaging: '箱' },
+        { brand: '品牌D', spec: 'SPEC002', product: '测试产品D', price: 110, unit: '个', packaging: '盒' }
+    ],
+    'PRD': [
+        { brand: '测试品牌', spec: 'PRD-001', product: '产品X', price: 200, unit: '个', packaging: '箱' }
+    ],
+    'PRD-': [
+        { brand: '测试品牌', spec: 'PRD-001', product: '产品X', price: 200, unit: '个', packaging: '箱' },
+        { brand: '品牌E', spec: 'PRD-002', product: '产品Y', price: 180, unit: '台', packaging: '箱' }
+    ]
+};
+
+function showSpecDropdown(input) {
+    var dropdown = input.nextElementSibling;
+    if (dropdown && dropdown.classList.contains('spec-dropdown')) {
+        dropdown.classList.remove('hidden');
+        if (input.value) {
+            filterSpecDropdown(input);
+        } else {
+            renderAllSpecs(dropdown);
+        }
+    }
+}
+
+function renderAllSpecs(dropdown) {
+    var allSpecs = Object.keys(specBrandMap);
+    var html = '<div class="dropdown-item" onclick="selectSpec(this, null)">-- 不限品牌 --</div>';
+    allSpecs.forEach(function(spec) {
+        var brands = specBrandMap[spec];
+        if (brands && brands.length > 0) {
+            html += '<div class="dropdown-item" onclick="selectSpec(this, \'' + spec + '\')">' + spec + ' (' + brands.length + '个品牌)</div>';
+        }
+    });
+    dropdown.innerHTML = html;
+}
+
+function filterSpecDropdown(input) {
+    var searchText = input.value.toLowerCase();
+    var dropdown = input.nextElementSibling;
+    if (!dropdown || !dropdown.classList.contains('spec-dropdown')) return;
+    
+    var matchedSpecs = [];
+    Object.keys(specBrandMap).forEach(function(spec) {
+        if (spec.toLowerCase().indexOf(searchText) > -1) {
+            matchedSpecs.push(spec);
+        }
+    });
+    
+    if (matchedSpecs.length === 0) {
+        dropdown.innerHTML = '<div class="dropdown-item" style="color:#999;">未找到匹配的规格</div>';
+        return;
+    }
+    
+    var html = '<div class="dropdown-item" onclick="selectSpec(this, null)">-- 不限品牌 --</div>';
+    matchedSpecs.forEach(function(spec) {
+        var brands = specBrandMap[spec];
+        if (brands && brands.length > 0) {
+            html += '<div class="dropdown-item" onclick="selectSpec(this, \'' + spec + '\')">' + spec + ' (' + brands.length + '个品牌)</div>';
+        }
+    });
+    dropdown.innerHTML = html;
+}
+
+function onSpecInput(input) {
+    var dropdown = input.nextElementSibling;
+    if (dropdown && dropdown.classList.contains('spec-dropdown')) {
+        dropdown.classList.remove('hidden');
+        filterSpecDropdown(input);
+    }
+}
+
+function selectSpec(element, specCode) {
+    var dropdown = element.closest('.spec-dropdown');
+    var input = dropdown.previousElementSibling;
+    var row = input.closest('tr');
+    var brandInput = row.querySelector('.brand-input');
+    
+    input.value = specCode || '';
+    
+    if (specCode && specBrandMap[specCode] && specBrandMap[specCode].length > 1) {
+        // 多个品牌，切换为下拉
+        var brands = specBrandMap[specCode];
+        var currentBrand = brandInput.value;
+        var selectHtml = '<select class="brand-select" onchange="onBrandSelect(this)">';
+        selectHtml += '<option value="">-- 选择品牌 --</option>';
+        brands.forEach(function(item) {
+            var selected = item.brand === currentBrand ? 'selected' : '';
+            selectHtml += '<option value="' + item.brand + '" data-product="' + item.product + '" data-price="' + item.price + '" data-unit="' + item.unit + '" data-packaging="' + item.packaging + '">' + item.brand + '</option>';
+        });
+        selectHtml += '</select>';
+        
+        brandInput.replaceWith(createElementFromHTML(selectHtml));
+        var newSelect = dropdown.parentElement.querySelector('.brand-select');
+        if (currentBrand) {
+            newSelect.value = currentBrand;
+        }
+    } else if (specCode && specBrandMap[specCode] && specBrandMap[specCode].length === 1) {
+        // 单个品牌，直接填充
+        var item = specBrandMap[specCode][0];
+        if (brandInput.tagName === 'SELECT') {
+            var selectHtml = '<input type="text" class="brand-input" value="' + item.brand + '">';
+            brandInput.replaceWith(createElementFromHTML(selectHtml));
+        } else {
+            brandInput.value = item.brand;
+        }
+        fillProductRow(row, item);
+    }
+    
+    dropdown.classList.add('hidden');
+}
+
+function onBrandSelect(select) {
+    var row = select.closest('tr');
+    var selectedOption = select.options[select.selectedIndex];
+    var productName = selectedOption.getAttribute('data-product');
+    var price = selectedOption.getAttribute('data-price');
+    var unit = selectedOption.getAttribute('data-unit');
+    var packaging = selectedOption.getAttribute('data-packaging');
+    var specInput = row.querySelector('.spec-input');
+    var specCode = specInput.value;
+    
+    row.querySelector('td:nth-child(4) input').value = productName || '';
+    row.querySelector('td:nth-child(5) input').value = packaging || '';
+    row.querySelector('td:nth-child(6) input').value = unit || '';
+    row.querySelector('td:nth-child(8) input').value = price || '0.00';
+    row.querySelector('td:nth-child(14) span').textContent = '100';
+    calculateRow(row.querySelector('td:nth-child(8) input'));
+}
+
+function fillProductRow(row, item) {
+    row.querySelector('td:nth-child(4) input').value = item.product;
+    row.querySelector('td:nth-child(5) input').value = item.packaging;
+    row.querySelector('td:nth-child(6) input').value = item.unit;
+    row.querySelector('td:nth-child(8) input').value = item.price;
+    row.querySelector('td:nth-child(14) span').textContent = '100';
+    calculateRow(row.querySelector('td:nth-child(8) input'));
+}
+
+function createElementFromHTML(htmlString) {
+    var div = document.createElement('div');
+    div.innerHTML = htmlString;
+    return div.firstChild;
+}

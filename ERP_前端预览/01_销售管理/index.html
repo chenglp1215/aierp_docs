@@ -400,8 +400,11 @@
                             <tbody>
                                 <tr>
                                     <td>1</td>
-                                    <td><input type="text" placeholder="品牌"></td>
-                                    <td><input type="text" placeholder="规格编号"></td>
+                                    <td><input type="text" class="brand-input" placeholder="品牌"></td>
+                                    <td style="position:relative;">
+                                        <input type="text" class="spec-input" placeholder="规格编号" autocomplete="off" oninput="onSpecInput(this)" onclick="showSpecDropdown(this)">
+                                        <div class="spec-dropdown hidden"></div>
+                                    </td>
                                     <td><input type="text" placeholder="搜索选择商品" onchange="onProductSelect(this)"></td>
                                     <td><input type="text" placeholder="包装"></td>
                                     <td><input type="text" placeholder="单位"></td>
@@ -591,8 +594,11 @@
                             <tbody>
                                 <tr>
                                     <td>1</td>
-                                    <td><input type="text" value="测试品牌"></td>
-                                    <td><input type="text" value="SPEC001"></td>
+                                    <td><input type="text" class="brand-input" value="测试品牌"></td>
+                                    <td style="position:relative;">
+                                        <input type="text" class="spec-input" value="SPEC001" autocomplete="off" oninput="onSpecInput(this)" onclick="showSpecDropdown(this)">
+                                        <div class="spec-dropdown hidden"></div>
+                                    </td>
                                     <td><input type="text" value="测试产品A"></td>
                                     <td><input type="text" value="瓶"></td>
                                     <td><input type="text" value="个"></td>
