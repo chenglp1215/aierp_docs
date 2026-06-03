@@ -263,11 +263,20 @@
     color: #fa8c16 !important;
 }
 
-.spec-dropdown {
+.brand-select {
+    width: 100%;
+    padding: 4px 8px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.brand-dropdown,
+.product-dropdown {
     position: absolute;
     top: 100%;
     left: 0;
-    min-width: 250px;
+    min-width: 200px;
     max-height: 300px;
     overflow-y: auto;
     background: #fff;
@@ -277,29 +286,29 @@
     z-index: 1000;
 }
 
+.brand-dropdown .dropdown-item,
+.product-dropdown .dropdown-item,
 .spec-dropdown .dropdown-item {
     padding: 8px 12px;
     cursor: pointer;
     border-bottom: 1px solid #f0f0f0;
 }
 
+.brand-dropdown .dropdown-item:last-child,
+.product-dropdown .dropdown-item:last-child,
 .spec-dropdown .dropdown-item:last-child {
     border-bottom: none;
 }
 
+.brand-dropdown .dropdown-item:hover,
+.product-dropdown .dropdown-item:hover,
 .spec-dropdown .dropdown-item:hover {
     background: #f5f5f5;
 }
 
+.brand-dropdown .dropdown-item.selected,
+.product-dropdown .dropdown-item.selected,
 .spec-dropdown .dropdown-item.selected {
     background: #e6f7ff;
     color: #1890ff;
-}
-
-.brand-select {
-    width: 100%;
-    padding: 4px 8px;
-    border: 1px solid #d9d9d9;
-    border-radius: 4px;
-    background: #fff;
 }

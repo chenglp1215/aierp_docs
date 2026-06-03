@@ -400,12 +400,18 @@
                             <tbody>
                                 <tr>
                                     <td>1</td>
-                                    <td><input type="text" class="brand-input" placeholder="品牌"></td>
                                     <td style="position:relative;">
-                                        <input type="text" class="spec-input" placeholder="规格编号" autocomplete="off" oninput="onSpecInput(this)" onclick="showSpecDropdown(this)">
+                                        <input type="text" class="brand-input" placeholder="品牌" autocomplete="off" oninput="onBrandFilterInput(this)" onclick="showBrandDropdown(this)">
+                                        <div class="brand-dropdown hidden"></div>
+                                    </td>
+                                    <td style="position:relative;">
+                                        <input type="text" class="spec-input" placeholder="规格编号" autocomplete="off" oninput="onSpecFilterInput(this)" onclick="showSpecDropdown(this)">
                                         <div class="spec-dropdown hidden"></div>
                                     </td>
-                                    <td><input type="text" placeholder="搜索选择商品" onchange="onProductSelect(this)"></td>
+                                    <td style="position:relative;">
+                                        <input type="text" class="product-input" placeholder="产品名称" autocomplete="off" oninput="onProductFilterInput(this)" onclick="showProductDropdown(this)">
+                                        <div class="product-dropdown hidden"></div>
+                                    </td>
                                     <td><input type="text" placeholder="包装"></td>
                                     <td><input type="text" placeholder="单位"></td>
                                     <td><input type="text" placeholder="备注"></td>
@@ -594,12 +600,18 @@
                             <tbody>
                                 <tr>
                                     <td>1</td>
-                                    <td><input type="text" class="brand-input" value="测试品牌"></td>
                                     <td style="position:relative;">
-                                        <input type="text" class="spec-input" value="SPEC001" autocomplete="off" oninput="onSpecInput(this)" onclick="showSpecDropdown(this)">
+                                        <input type="text" class="brand-input" value="测试品牌" autocomplete="off" oninput="onBrandFilterInput(this)" onclick="showBrandDropdown(this)">
+                                        <div class="brand-dropdown hidden"></div>
+                                    </td>
+                                    <td style="position:relative;">
+                                        <input type="text" class="spec-input" value="SPEC001" autocomplete="off" oninput="onSpecFilterInput(this)" onclick="showSpecDropdown(this)">
                                         <div class="spec-dropdown hidden"></div>
                                     </td>
-                                    <td><input type="text" value="测试产品A"></td>
+                                    <td style="position:relative;">
+                                        <input type="text" class="product-input" value="测试产品A" autocomplete="off" oninput="onProductFilterInput(this)" onclick="showProductDropdown(this)">
+                                        <div class="product-dropdown hidden"></div>
+                                    </td>
                                     <td><input type="text" value="瓶"></td>
                                     <td><input type="text" value="个"></td>
                                     <td><input type="number" value="100.00"></td>
